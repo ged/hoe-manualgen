@@ -2,13 +2,24 @@
 
 require 'hoe'
 
+# 1.9.2 and later require explicit relative require
+if defined?( require_relative )
+	$stderr.puts "Requiring relative lib/hoe/manualgen..."
+	require_relative "lib/hoe/manualgen"
+	$stderr.puts "	require done."
+else
+	$LOAD_PATH.unshift( 'lib' )
+	require 'hoe/manualgen'
+end
+
 Hoe.plugin :mercurial
 Hoe.plugin :yard
 Hoe.plugin :signing
+Hoe.plugin :manualgen
 
 Hoe.plugins.delete :rubyforge
 
-hoespec = Hoe.spec 'hoe_manualgen' do
+hoespec = Hoe.spec 'hoe-manualgen' do
 	self.readme_file = 'README.md'
 
 	self.developer 'Michael Granger', 'ged@FaerieMUD.org'
@@ -17,19 +28,14 @@ hoespec = Hoe.spec 'hoe_manualgen' do
 		['rspec', '~> 2.1.0']
 
 	self.spec_extras[:licenses] = ["BSD"]
-	self.spec_extras[:post_install_message] = %{
-
-		New!
-		
-	}.gsub( /^\t{2}/, '' )
-
 	self.spec_extras[:signing_key] = '/Volumes/Keys/ged-private_gem_key.pem'
 
 	self.require_ruby_version( '>=1.8.7' )
 
-	self.hg_sign_tags = true if self.respond_to?( :hg_sign_tags )
+	self.hg_sign_tags = true if self.respond_to?( :hg_sign_tags= )
+	self.yard_opts = [ '--use-cache', '--protected', '--verbose' ] if
+		self.respond_to?( :yard_opts )
 
-	self.yard_opts = [ '--use-cache', '--protected', '--verbose' ]
 	self.rdoc_locations << "deveiate:/usr/local/www/public/code/#{remote_rdoc_dir}"
 end
 

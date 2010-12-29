@@ -1,15 +1,16 @@
-# hoe_manualgen
+# hoe-manualgen
 
-* FIX (url)
+* http://deveiate.org/hoe-manualgen.html
 
 ## Description
 
-FIX (describe your package)
+A manual-generation plugin for Hoe.
 
+More details when it works.
 
 ## Installation
 
-    gem install hoe_manualgen
+    gem install hoe-manualgen
 
 
 ## Contributing

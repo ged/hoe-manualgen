@@ -1,5 +1,4 @@
 History.md
 README.md
 Rakefile
-lib/hoe_manualgen.rb
-spec/hoe_manualgen_spec.rb
+lib/hoe/manualgen.rb

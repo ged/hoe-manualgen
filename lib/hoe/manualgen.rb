@@ -5,6 +5,7 @@ require 'hoe'
 require 'pathname'
 require 'singleton'
 require 'erb'
+require 'fileutils'
 
 require 'rake/clean'
 
@@ -22,15 +23,18 @@ require 'rake/clean'
 # @author Mahlon E. Smith <mahlon@martini.nu>
 # 
 module Hoe::ManualGen
+	include FileUtils
+	include FileUtils::Verbose if Rake.application.options.trace
+	include FileUtils::DryRun if Rake.application.options.dryrun
 
 	# Library version constant
-	VERSION = '1.0.2'
+	VERSION = '0.0.1'
 
 	# Version-control revision constant
 	REVISION = %q$Revision$
 
 	# Configuration defaults
-	DEFAULT_BASE_DIR     = Pathname.new( 'doc/manual' )
+	DEFAULT_BASE_DIR     = Pathname.new( 'manual' )
 	DEFAULT_SOURCE_DIR   = 'source'
 	DEFAULT_LAYOUTS_DIR  = 'layouts'
 	DEFAULT_OUTPUT_DIR   = 'output'
@@ -112,7 +116,7 @@ module Hoe::ManualGen
 		### Create a new page-generator for the given +sourcefile+, which will use
 		### ones of the templates in +layouts_dir+ as a wrapper. The +basepath+ 
 		### is the path to the base output directory, and the +catalog+ is the
-		### Manual::PageCatalog to which the page belongs.
+		### PageCatalog to which the page belongs.
 		def initialize( catalog, sourcefile, layouts_dir, basepath='.' )
 			@catalog     = catalog
 			@sourcefile  = Pathname.new( sourcefile )
@@ -134,7 +138,7 @@ module Hoe::ManualGen
 		public
 		######
 
-		# The Manual::PageCatalog to which the page belongs
+		# The PageCatalog to which the page belongs
 		attr_reader :catalog
 
 		# The relative path to the base directory, for prepending to page paths
@@ -221,11 +225,11 @@ module Hoe::ManualGen
 				xml = tidy.clean( source )
 				errors = tidy.errors
 				error_message( errors.join ) unless errors.empty?
-				trace tidy.diagnostics
+				warn tidy.diagnostics if $DEBUG
 				return xml
 			end
 		rescue LoadError => err
-			trace "No cleanup: " + err.message
+			$stderr.puts "No cleanup: " + err.message
 			return source
 		end
 
@@ -234,8 +238,8 @@ module Hoe::ManualGen
 		def load_filters( filterlist )
 			filterlist.flatten.collect do |key|
 				raise ArgumentError, "filter '#{key}' is not loaded" unless
-					Manual::Page::Filter.derivatives.key?( key )
-				Manual::Page::Filter.derivatives[ key ].instance
+					Page::Filter.derivatives.key?( key )
+				Page::Filter.derivatives[ key ].instance
 			end
 		end
 
@@ -279,10 +283,10 @@ module Hoe::ManualGen
 	end
 
 
-	### A catalog of Manual::Page objects that can be referenced by filters.
+	### A catalog of Page objects that can be referenced by filters.
 	class PageCatalog
 
-		### Create a new PageCatalog that will load Manual::Page objects for .page files 
+		### Create a new PageCatalog that will load Page objects for .page files 
 		### in the specified +sourcedir+.
 		def initialize( sourcedir, layoutsdir )			
 			@sourcedir = sourcedir
@@ -315,7 +319,7 @@ module Hoe::ManualGen
 		# The hierarchy of pages in the catalog, suitable for generating an on-page index
 		attr_reader :hierarchy
 
-		# An Array of all Manual::Page objects found
+		# An Array of all Page objects found
 		attr_reader :pages
 
 		# The Pathname location of the .page files.
@@ -331,7 +335,7 @@ module Hoe::ManualGen
 		###	 
 		###		:entry, :section, :section_end
 		###
-		### If the optional +from+ value is given, it should be the Manual::Page object
+		### If the optional +from+ value is given, it should be the Page object
 		### which is considered "current"; if the +from+ object is the same as the 
 		### hierarchy entry being yielded, it will be yielded with the +type+ set to 
 		### one of:
@@ -444,15 +448,13 @@ module Hoe::ManualGen
 		end
 
 
-		### Find and store
-
 		### Find all .page files under the configured +sourcedir+ and create a new
-		### Manual::Page object for each one.
+		### Page object for each one.
 		def find_and_load_pages
 			Pathname.glob( @sourcedir + '**/*.page' ).each do |pagefile|
 				path_to_base = @sourcedir.relative_path_from( pagefile.dirname )
 
-				page = Manual::Page.new( self, pagefile, @layoutsdir, path_to_base )
+				page = Page.new( self, pagefile, @layoutsdir, path_to_base )
 				hierpath = pagefile.relative_path_from( @sourcedir )
 
 				@pages << page
@@ -476,7 +478,7 @@ module Hoe::ManualGen
 
 
 	### A Textile filter for the manual generation tasklib.
-	class TextileFilter < Manual::Page::Filter
+	class TextileFilter < Page::Filter
 
 		### Load RedCloth when the filter is first created
 		def initialize( *args )
@@ -498,7 +500,7 @@ module Hoe::ManualGen
 
 
 	### An ERB filter.
-	class ErbFilter < Manual::Page::Filter
+	class ErbFilter < Page::Filter
 
 		### Process the given +source+ as ERB and return the resulting HTML
 		### fragment.
@@ -522,6 +524,7 @@ module Hoe::ManualGen
 
 	### Hoe callback -- set up defaults
 	def initialize_manualgen
+		@manual_base_dir     = DEFAULT_BASE_DIR
 		@manual_source_dir   = DEFAULT_SOURCE_DIR
 		@manual_layouts_dir  = DEFAULT_LAYOUTS_DIR
 		@manual_output_dir   = DEFAULT_OUTPUT_DIR
@@ -535,48 +538,111 @@ module Hoe::ManualGen
 	def define_manualgen_tasks
 
 		# Make Pathnames of the directories relative to the base_dir
-		basedir     = Pathname( self.manual_base_dir )
-		sourcedir   = basedir + self.manual_source_dir
-		layoutsdir  = basedir + self.manual_layouts_dir
-		resourcedir = basedir + self.manual_resource_dir
-		libdir      = basedir + self.manual_lib_dir
+		basedir = Pathname( self.manual_base_dir )
+		@manual_paths = {
+			:basedir     => basedir,
+			:sourcedir   => basedir + self.manual_source_dir,
+			:layoutsdir  => basedir + self.manual_layouts_dir,
+			:resourcedir => basedir + self.manual_resource_dir,
+			:libdir      => basedir + self.manual_lib_dir,
+			:outputdir   => basedir + self.manual_output_dir,
+		}
 
-		outputdir   = Pathname( self.manual_output_dir )
+		if basedir.directory?
+			define_existing_manual_tasks( @manual_paths )
+		else
+			define_manual_setup_tasks( @manual_paths )
+		end
+
+	end
+
+
+	### Create a new manual skeleton from a template.
+	def define_manual_setup_tasks( paths )
+		templatedir = Pathname( Gem.datadir('hoe-manualgen') || 'data/hoe-manualgen' )
+		manualdir = paths[:basedir]
+
+		desc "Create a manual for this project from a template"
+		task :manual do
+			log "No manual directory (#{manualdir}) currently exists."
+			ask_for_confirmation( "Create a new manual directory tree from a template?" ) do
+				manualdir.mkpath
+
+				%w[layouts lib resources src].each do |dir|
+					mkpath( manualdir + dir, :mode => 0755 )
+				end
+
+				Pathname.glob( templatedir + '**/*.{rb,css,png,js,erb,page}' ).each do |tmplfile|
+					trace "extname is: #{tmplfile.extname}"
+
+					# Render ERB files
+					if tmplfile.extname == '.erb'
+						rname = tmplfile.basename( '.erb' )
+						target = manualdir + tmplfile.dirname.relative_path_from( templatedir ) + rname
+						template = ERB.new( tmplfile.read, nil, '<>' )
+
+						target.dirname.mkpath( :mode => 0755 ) unless target.dirname.directory?
+						html = template.result( binding() )
+						log "generating #{target}: html => #{html[0,20]}"
+
+						target.open( File::WRONLY|File::CREAT|File::EXCL, 0644 ) do |fh|
+							fh.print( html )
+						end
+
+					# Just copy anything else
+					else
+						target = manualdir + tmplfile.relative_path_from( templatedir )
+						FileUtils.mkpath target.dirname,
+							:mode => 0755, :verbose => true, :noop => $dryrun unless target.dirname.directory?
+						FileUtils.install tmplfile, target,
+							:mode => 0644, :verbose => true, :noop => $dryrun
+					end
+				end
+			end
+
+		end # task :manual
+
+	end
+
+
+	### Define tasks for generating output for an existing manual.
+	def define_existing_manual_tasks( paths )
 
 		# Read all of the filters, pages, and layouts
-		load_filter_libraries( libdir )
-		catalog = Manual::PageCatalog.new( sourcedir, layoutsdir )
+		load_filter_libraries( paths[:libdir] )
+		trace "Creating the manual page catalog with source at %p, layouts in %p" %
+			paths.values_at( :sourcedir, :layoutsdir )
+		catalog = PageCatalog.new( paths[:sourcedir], paths[:layoutsdir] )
 
 		# Declare the tasks outside the namespace that point in
 		desc "Generate the manual"
 		task :manual => "manual:build"
 
-		CLEAN.include( outputdir.to_s )
+		CLEAN.include( paths[:outputdir].to_s )
 
 		# Namespace all our tasks
 		namespace :manual do
 
 			# Set up a file task for each resource, then a conversion task for
 			# each page in the sourcedir so pages re-generate if they're modified
-			setup_resource_copy_tasks( resourcedir, outputdir )
-			manual_pages = setup_page_conversion_tasks( sourcedir, outputdir, catalog )
+			setup_resource_copy_tasks( paths[:resourcedir], paths[:outputdir] )
+			manual_pages = setup_page_conversion_tasks( paths[:sourcedir], paths[:outputdir], catalog )
 
 			# The main task
 			desc "Build the manual"
-			task :build => [ :apidocs, :copy_resources, :copy_apidocs, :generate_pages ]
+			task :build => [ :copy_resources, :copy_apidocs, :generate_pages ]
 
 			task :clean do
 				RakeFileUtils.verbose( $verbose ) do
 					rm_f manual_pages.to_a
 				end
-				remove_dir( outputdir ) if ( outputdir + '.buildtime' ).exist?
+				remove_dir( paths[:outputdir] ) if ( paths[:outputdir] + '.buildtime' ).exist?
 			end
 
 			desc "Force a rebuild of the manual"
 			task :rebuild => [ :clean, self.name ]
 
         end
-
 	end
 
 
@@ -595,7 +661,7 @@ module Hoe::ManualGen
 
 		# we need to figure out what HTML pages need to be generated so we can set up the
 		# dependency that causes the rule to be fired for each one when the task is invoked.
-		manual_sources = Rake::FileList[ catalog.path_index.keys.map {|pn| pn.to_s} ]
+		manual_sources = Rake::FileList[ catalog.path_index.keys.map(&:to_s) ]
 		trace "   found %d source files" % [ manual_sources.length ]
 
 		# Map .page files to their equivalent .html output
@@ -626,7 +692,7 @@ module Hoe::ManualGen
 
 			target.dirname.mkpath
 			target.open( File::WRONLY|File::CREAT|File::TRUNC ) do |io|
-				io.write( page.generate(metadata) )
+				io.write( page.generate(self.manual_metadata) )
 			end
 		end
 
@@ -666,8 +732,12 @@ module Hoe::ManualGen
 		end
 
 		desc "Copy API documentation to the manual output directory"
-		task :copy_apidocs => :apidocs do
-			cp_r( API_DOCSDIR, outputdir )
+		task :copy_apidocs => [ outputdir.to_s, :docs ] do
+			# Since Hoe hard-codes the 'docs' output dir, it's hard-coded 
+			# here too.
+			apidir = outputdir + 'api'
+			self.manual_metadata.api_dir = apidir
+			cp_r( 'doc', apidir )
 		end
 
 		# Now group all the resource file tasks into a containing task
