@@ -6,19 +6,17 @@
   <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
 
   <title><%= name %> Manual — <%%= page.config['title'] || "untitled" %></title>
-  <meta name="description" content="">
-  <meta name="author" content="">
 
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <link rel="shortcut icon" href="/favicon.ico">
-  <link rel="apple-touch-icon" href="/apple-touch-icon.png">
+  <link rel="stylesheet" href="css/manual.css">
 
-  <link rel="stylesheet" href="css/style.css?v=2">
-  <script src="js/libs/modernizr-1.6.min.js"></script>
+  <script src="js/jquery-1.4.4.min.js"></script>
+  <script src="js/modernizr-1.6.min.js"></script>
+  <script src="js/sh.js"></script>
+  <script src="js/manual.js"></script>
 
 </head>
 <body>
-
+	<div id="page">
 	<header>
 		<a href="/">
 		<hgroup>
@@ -47,7 +45,8 @@
 		<div class="vcsrev">Rev: $Revision$</div>
 		<div class="timestamp">Built: <%%= Time.now.strftime("%Y%m%d %H:%M:%S %Z") %></div>
 	</footer>
-	
+	</div>
+
 </body>
 </html>
 
