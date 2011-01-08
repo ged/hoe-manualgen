@@ -35,7 +35,7 @@ module Hoe::ManualGen
 
 	# Configuration defaults
 	DEFAULT_BASE_DIR     = Pathname.new( 'manual' )
-	DEFAULT_SOURCE_DIR   = 'source'
+	DEFAULT_SOURCE_DIR   = 'src'
 	DEFAULT_LAYOUTS_DIR  = 'layouts'
 	DEFAULT_OUTPUT_DIR   = 'output'
 	DEFAULT_RESOURCE_DIR = 'resources'
@@ -87,7 +87,7 @@ module Hoe::ManualGen
 		### The default page configuration if none is specified.
 		DEFAULT_CONFIG = {
 			'filters' => [ 'erb', 'links', 'textile' ],
-			'layout'  => 'default.page',
+			'layout'  => 'default.erb',
 			'cleanup' => false,
 		  }.freeze
 
@@ -164,8 +164,8 @@ module Hoe::ManualGen
 		def generate( metadata )
 			content = self.generate_content( @source, metadata )
 
-			layout = self.config['layout'].sub( /\.page$/, '' )
-			templatepath = @layouts_dir + "#{layout}.page"
+			layout = self.config['layout'].sub( /\.erb$/, '' )
+			templatepath = @layouts_dir + "#{layout}.erb"
 			template = nil
 			if Object.const_defined?( :Encoding )
 				template = ERB.new( templatepath.read(:encoding => 'UTF-8') )
@@ -557,7 +557,7 @@ module Hoe::ManualGen
 	end
 
 
-	### Create a new manual skeleton from a template.
+	### Define tasks for creating a skeleton manual
 	def define_manual_setup_tasks( paths )
 		templatedir = Pathname( Gem.datadir('hoe-manualgen') || 'data/hoe-manualgen' )
 		manualdir = paths[:basedir]
@@ -566,44 +566,49 @@ module Hoe::ManualGen
 		task :manual do
 			log "No manual directory (#{manualdir}) currently exists."
 			ask_for_confirmation( "Create a new manual directory tree from a template?" ) do
-				manualdir.mkpath
-
-				%w[layouts lib resources src].each do |dir|
-					mkpath( manualdir + dir, :mode => 0755 )
-				end
-
-				Pathname.glob( templatedir + '**/*.{rb,css,png,js,erb,page}' ).each do |tmplfile|
-					trace "extname is: #{tmplfile.extname}"
-
-					# Render ERB files
-					if tmplfile.extname == '.erb'
-						rname = tmplfile.basename( '.erb' )
-						target = manualdir + tmplfile.dirname.relative_path_from( templatedir ) + rname
-						template = ERB.new( tmplfile.read, nil, '<>' )
-
-						target.dirname.mkpath( :mode => 0755 ) unless target.dirname.directory?
-						html = template.result( binding() )
-						log "generating #{target}: html => #{html[0,20]}"
-
-						target.open( File::WRONLY|File::CREAT|File::EXCL, 0644 ) do |fh|
-							fh.print( html )
-						end
-
-					# Just copy anything else
-					else
-						target = manualdir + tmplfile.relative_path_from( templatedir )
-						FileUtils.mkpath target.dirname,
-							:mode => 0755, :verbose => true, :noop => $dryrun unless target.dirname.directory?
-						FileUtils.install tmplfile, target,
-							:mode => 0644, :verbose => true, :noop => $dryrun
-					end
-				end
+				generate_manual_skeleton( manualdir, templatedir )
 			end
 
 		end # task :manual
 
 	end
 
+
+	### Generate a new manual directory from the specified +templatedir+.
+	def generate_manual_skeleton( manualdir, templatedir )
+		manualdir.mkpath
+
+		%w[layouts lib resources src].each do |dir|
+			mkpath( manualdir + dir, :mode => 0755 )
+		end
+
+		Pathname.glob( templatedir + '**/*.{rb,css,png,js,erb,page}' ).each do |tmplfile|
+			trace "extname is: #{tmplfile.extname}"
+
+			# Render ERB files
+			if tmplfile.extname == '.erb'
+				rname = tmplfile.basename( '.erb' )
+				target = manualdir + tmplfile.dirname.relative_path_from( templatedir ) + rname
+				template = ERB.new( tmplfile.read, nil, '<>' )
+
+				target.dirname.mkpath unless target.dirname.directory?
+				html = template.result( binding() )
+				log "generating #{target}"
+
+				target.open( File::WRONLY|File::CREAT|File::EXCL, 0644 ) do |fh|
+					fh.print( html )
+				end
+
+			# Just copy anything else
+			else
+				target = manualdir + tmplfile.relative_path_from( templatedir )
+				FileUtils.mkpath target.dirname,
+					:mode => 0755, :verbose => true, :noop => $dryrun unless target.dirname.directory?
+				FileUtils.install tmplfile, target,
+					:mode => 0644, :verbose => true, :noop => $dryrun
+			end
+		end
+	end
 
 	### Define tasks for generating output for an existing manual.
 	def define_existing_manual_tasks( paths )

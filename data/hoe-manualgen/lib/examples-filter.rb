@@ -10,12 +10,6 @@
 # Dependencies deferred until #initialize
 
 
-### Avoid declaring the class if the tasklib hasn't been loaded yet.
-unless Object.const_defined?( :Manual )
-	raise LoadError, "not intended for standalone use: try the 'manual.rb' rake tasklib"
-end
-
-
 
 ### A filter for inline example code or command-line sessions -- does
 ### syntax-checking for some languages and captioning.
@@ -38,7 +32,7 @@ end
 ###	  any errors to the output.
 ### caption::
 ###   A small blurb to put below the pulled-out example in the HTML.
-class ExamplesFilter < Manual::Page::Filter
+class Hoe::ManualGen::ExamplesFilter < Hoe::ManualGen::Page::Filter
 	
 	DEFAULTS = {
 		:language     => :ruby,
