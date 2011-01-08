@@ -1,16 +1,9 @@
 #!/usr/bin/env rake
 
 require 'hoe'
+require 'rake/clean'
 
-# 1.9.2 and later require explicit relative require
-if defined?( require_relative )
-	$stderr.puts "Requiring relative lib/hoe/manualgen..."
-	require_relative "lib/hoe/manualgen"
-	$stderr.puts "	require done."
-else
-	$LOAD_PATH.unshift( 'lib' )
-	require 'hoe/manualgen'
-end
+Hoe.add_include_dirs 'lib'
 
 Hoe.plugin :mercurial
 Hoe.plugin :yard
