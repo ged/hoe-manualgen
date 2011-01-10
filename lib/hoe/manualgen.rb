@@ -252,12 +252,12 @@ module Hoe::ManualGen
 				case type
 				when :section
 					items << %Q{<div class="section">}
-					items << %Q{<h2><a href="#{self.basepath + path}/">#{title}</a></h2>}
+					items << %Q{<h3><a href="#{self.basepath + path}/">#{title}</a></h3>}
 					items << '<ul class="index-section">'
 
 				when :current_section
 					items << %Q{<div class="section current-section">}
-					items << %Q{<h2><a href="#{self.basepath + path}/">#{title}</a></h2>}
+					items << %Q{<h3><a href="#{self.basepath + path}/">#{title}</a></h3>}
 					items << '<ul class="index-section current-index-section">'
 
 				when :section_end, :current_section_end

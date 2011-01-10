@@ -16,36 +16,58 @@
 
 </head>
 <body>
-	<div id="page">
+<div id="page">
+
 	<header>
-		<a href="/">
 		<hgroup>
-			<h1><%= name %></h1>
+			<a href="/">
+				<h1><%= name %></h1>
+			</a>
 			<%% if metadata.version %><h2 class="version"><%%= metadata.version %></h2><%% end %>
 			<%% if page.config['tagline'] %><h2 class="tagline"><%%= page.config['tagline'] %></h2><%% end %>
 		</hgroup>
-		</a>
-
-		<nav>
-		<%%= page.make_index_html %>
-		</nav>
-
 	</header>
 
-	<section id="content">
-
+	<section id="content" class="column width3 first">
 		<!-- Generated content -->
 		<%%= content %>
 		<!-- end of generated content -->
-
 	</section>
  
+	<aside id="sidebar" class="column width1">
+				<nav>
+		<%%
+					@catalog.traverse_page_hierarchy( self ) do |type, title, path|
+						case type
+		  			when :section
+		%>
+						<div class="section">
+							<h3><a href="<%%= self.basepath + path %>/"><%%= title %></a></h3>
+							<ul class="index-section">
+		<%%  		when :current_section %>
+						<div class="section current-section">
+							<h3><a href="<%%= self.basepath + path %>/"><%%= title %></a></h3>
+							<ul class="index-section current-index-section">
+		<%%  		when :section_end, :current_section_end %>
+							</ul>
+						</div>
+		<%%  		when :entry %>
+							<li><a href="<%%= self.basepath + path %>.html"><%%= title %></a></li>
+		<%%  		when :current_entry %>
+							<li class="current-entry"><%%= title %></li>
+		<%% 			end
+					end
+		 %>
+				</nav>
+	</aside>
+
 	<footer>
 		<div class="copyright">Copyright &copy; 2008-<%%= Time.now.year %> <%= author.join(', ') %>.</div>
 		<div class="vcsrev">Rev: $Revision$</div>
 		<div class="timestamp">Built: <%%= Time.now.strftime("%Y%m%d %H:%M:%S %Z") %></div>
 	</footer>
-	</div>
+
+</div>
 
 </body>
 </html>
