@@ -17,8 +17,14 @@ hoespec = Hoe.spec 'hoe-manualgen' do
 
 	self.developer 'Michael Granger', 'ged@FaerieMUD.org'
 
-	self.extra_dev_deps <<
-		['rspec', '~> 2.1.0']
+	self.extra_deps.push *{
+		'RedCloth'   => '~> 4.2.3',
+		'rcodetools' => '~> 0.8.5.0',
+	}
+	self.extra_dev_deps.push *{
+		'rspec'    => '~> 2.4.0',
+		'tidy-ext' => '~> 0.1.10',
+	}
 
 	self.spec_extras[:licenses] = ["BSD"]
 	self.spec_extras[:signing_key] = '/Volumes/Keys/ged-private_gem_key.pem'
