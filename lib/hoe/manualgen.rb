@@ -1,4 +1,5 @@
 #!/usr/bin/env ruby
+#encoding: utf-8
 
 require 'hoe'
 
@@ -8,6 +9,10 @@ require 'erb'
 require 'fileutils'
 
 require 'rake/clean'
+
+# This is a hack to cause Gem.datadir to work for this plugin, as Kernel.load doesn't
+# populate it.
+unless defined?( Hoe::ManualGen )
 
 # Rake tasks for generating a project manual or tutorial.
 # 
@@ -23,6 +28,8 @@ require 'rake/clean'
 # @author Mahlon E. Smith <mahlon@martini.nu>
 # 
 module Hoe::ManualGen
+	require 'hoe/manualgen' # Hook up Gem.datadir( 'hoe-manualgen' )
+
 	include FileUtils
 	include FileUtils::Verbose if Rake.application.options.trace
 	include FileUtils::DryRun if Rake.application.options.dryrun
@@ -42,6 +49,14 @@ module Hoe::ManualGen
 	DEFAULT_LIB_DIR      = 'lib'
 	DEFAULT_METADATA     = OpenStruct.new
 
+	# The subdirectories to create under the manual dir
+	DEFAULT_MANUAL_SUBDIRS = [
+		DEFAULT_SOURCE_DIR,
+		DEFAULT_LAYOUTS_DIR,
+		DEFAULT_OUTPUT_DIR,
+		DEFAULT_RESOURCE_DIR,
+		DEFAULT_LIB_DIR,
+	]
 
 	### Manual page-generation class
 	class Page
@@ -123,7 +138,12 @@ module Hoe::ManualGen
 			@layouts_dir = Pathname.new( layouts_dir )
 			@basepath    = basepath
 
-			rawsource = @sourcefile.read
+			rawsource = nil
+			if Object.const_defined?( :Encoding )
+				rawsource = @sourcefile.read( :encoding => 'UTF-8' )
+			else
+				rawsource = @sourcefile.read
+			end
 			@config, @source = self.read_page_config( rawsource )
 
 			# $stderr.puts "Config is: %p" % [@config],
@@ -519,7 +539,8 @@ module Hoe::ManualGen
 		:manual_output_dir,
 		:manual_resource_dir,
 		:manual_lib_dir,
-		:manual_metadata
+		:manual_metadata,
+		:manual_paths
 
 
 	### Hoe callback -- set up defaults
@@ -531,6 +552,7 @@ module Hoe::ManualGen
 		@manual_resource_dir = DEFAULT_RESOURCE_DIR
 		@manual_lib_dir      = DEFAULT_LIB_DIR
 		@manual_metadata     = DEFAULT_METADATA
+		@manual_paths = {}
 	end
 
 
@@ -549,8 +571,10 @@ module Hoe::ManualGen
 		}
 
 		if basedir.directory?
+			trace "Basedir %s exists, so defining tasks for building the manual" % [ basedir ]
 			define_existing_manual_tasks( @manual_paths )
 		else
+			trace "Basedir %s doesn't exist, so defining tasks for creating a new manual" % [ basedir ]
 			define_manual_setup_tasks( @manual_paths )
 		end
 
@@ -560,6 +584,7 @@ module Hoe::ManualGen
 	### Define tasks for creating a skeleton manual
 	def define_manual_setup_tasks( paths )
 		templatedir = Pathname( Gem.datadir('hoe-manualgen') || 'data/hoe-manualgen' )
+		trace "Templatedir is: %s" % [ templatedir ]
 		manualdir = paths[:basedir]
 
 		desc "Create a manual for this project from a template"
@@ -576,14 +601,14 @@ module Hoe::ManualGen
 
 	### Generate a new manual directory from the specified +templatedir+.
 	def generate_manual_skeleton( manualdir, templatedir )
+		log "Generating manual skeleton"
 		manualdir.mkpath
 
-		%w[layouts lib resources src].each do |dir|
-			mkpath( manualdir + dir, :mode => 0755 )
+		self.manual_paths.each do |key, dir|
+			mkpath( dir, :mode => 0755 )
 		end
 
 		Pathname.glob( templatedir + '**/*.{rb,css,png,js,erb,page}' ).each do |tmplfile|
-			trace "extname is: #{tmplfile.extname}"
 
 			# Render ERB files
 			if tmplfile.extname == '.erb'
@@ -645,7 +670,7 @@ module Hoe::ManualGen
 			end
 
 			desc "Force a rebuild of the manual"
-			task :rebuild => [ :clean, self.name ]
+			task :rebuild => [ :clean, :build ]
 
         end
 	end
@@ -653,7 +678,7 @@ module Hoe::ManualGen
 
 	### Load the filter libraries provided in the given +libdir+
 	def load_filter_libraries( libdir )
-		Pathname.glob( libdir + '*.rb' ) do |filterlib|
+		Pathname.glob( libdir.expand_path + '*.rb' ) do |filterlib|
 			trace "  loading filter library #{filterlib}"
 			require( filterlib )
 		end
@@ -684,7 +709,7 @@ module Hoe::ManualGen
 		# Rule to generate .html files from .page files
 		rule(
 			%r{#{outputdir}/.*\.html$} => [
-				proc {|name| name.sub(/\.[^.]+$/, '.page').sub( outputdir, sourcedir) },
+				proc {|name| name.sub(/\.[^.]+$/, '.page').sub(outputdir.to_s, sourcedir.to_s) },
 				outputdir.to_s
 		 	]) do |task|
 
@@ -693,11 +718,12 @@ module Hoe::ManualGen
 			log "  #{ source } -> #{ target }"
 
 			page = catalog.path_index[ source ]
+			html = page.generate( self.manual_metadata )
 			#trace "  page object is: %p" % [ page ]
 
 			target.dirname.mkpath
 			target.open( File::WRONLY|File::CREAT|File::TRUNC ) do |io|
-				io.write( page.generate(self.manual_metadata) )
+				io.write( html )
 			end
 		end
 
@@ -725,7 +751,8 @@ module Hoe::ManualGen
 
 	### Set up a rule for copying files from the resources directory to the output dir.
 	def setup_resource_copy_tasks( resourcedir, outputdir )
-		resources = FileList[ resourcedir + '**/*.{js,css,png,gif,jpg,html,svg,svgz,swf}' ]
+		glob = resourcedir + '**/*.{js,css,png,gif,jpg,html,svg,svgz,swf}'
+		resources = FileList[ glob.to_s ]
 		resources.exclude( /\.svn/ )
 		target_pathmap = "%%{%s,%s}p" % [ resourcedir, outputdir ]
 		targets = resources.pathmap( target_pathmap )
@@ -753,4 +780,5 @@ module Hoe::ManualGen
 	end
 
 end # module Hoe::ManualGen
+end # unless defined?...
 
