@@ -10,20 +10,20 @@ filters:
   - textile
 ---
 
-h1. <%%= page.config['title'] %>
+h2. <%%= page.config['title'] %>
 
 <div id="auto-toc"></div>
 
 This is a manual for <%= name %>. It's not done yet.
 
-h2. Authors
+h3. Authors
 
 <% author.each do |author| %>
 * <%= author %>
 <% end %>
 
 
-h2. License
+h3. License
 
 Copyright © <%= Time.now.year %>, <%= author.join(', ') %>
 All rights reserved.

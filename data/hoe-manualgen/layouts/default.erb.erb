@@ -28,13 +28,7 @@
 		</hgroup>
 	</header>
 
-	<section id="content" class="column width3 first">
-		<!-- Generated content -->
-		<%%= content %>
-		<!-- end of generated content -->
-	</section>
- 
-	<aside id="sidebar" class="column width1">
+	<aside id="sidebar" class="column width1 first">
 				<nav>
 		<%%
 					@catalog.traverse_page_hierarchy( self ) do |type, title, path|
@@ -61,6 +55,12 @@
 				</nav>
 	</aside>
 
+	<section id="content" class="column width3">
+		<!-- Generated content -->
+		<%%= content %>
+		<!-- end of generated content -->
+	</section>
+ 
 	<footer>
 		<div class="copyright">Copyright &copy; 2008-<%%= Time.now.year %> <%= author.join(', ') %>.</div>
 		<div class="vcsrev">Rev: $Revision$</div>
