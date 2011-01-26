@@ -10,23 +10,19 @@ require 'fileutils'
 
 require 'rake/clean'
 
-# This is a hack to cause Gem.datadir to work for this plugin, as Kernel.load doesn't
-# populate it.
-unless defined?( Hoe::ManualGen )
-
 # Rake tasks for generating a project manual or tutorial.
-# 
+#
 # This was born out of a frustration with other static HTML generation modules
 # and systems. I've tried webby, webgen, rote, staticweb, staticmatic, and
 # nanoc, but I didn't find any of them really suitable (except rote, which was
 # excellent but apparently isn't maintained and has a fundamental
 # incompatibilty with Rake because of some questionable monkeypatching.)
-# 
+#
 # So, since nothing seemed to scratch my itch, I'm going to scratch it myself.
-# 
+#
 # @author Michael Granger <ged@FaerieMUD.org>
 # @author Mahlon E. Smith <mahlon@martini.nu>
-# 
+#
 module Hoe::ManualGen
 	require 'hoe/manualgen' # Hook up Gem.datadir( 'hoe-manualgen' )
 
@@ -41,13 +37,17 @@ module Hoe::ManualGen
 	REVISION = %q$Revision$
 
 	# Configuration defaults
-	DEFAULT_BASE_DIR     = Pathname.new( 'manual' )
+	DEFAULT_BASE_DIR     = Pathname( 'manual' )
 	DEFAULT_SOURCE_DIR   = 'src'
 	DEFAULT_LAYOUTS_DIR  = 'layouts'
 	DEFAULT_OUTPUT_DIR   = 'output'
 	DEFAULT_RESOURCE_DIR = 'resources'
 	DEFAULT_LIB_DIR      = 'lib'
 	DEFAULT_METADATA     = OpenStruct.new
+
+	# A glob pattern for matching resource files when copying them around
+	RESOURCE_EXTNAMES = %w[ css erb gif html jpg js otf page png rb svg svgz swf ]
+	RESOURCE_GLOB_PATTERN = "**/*.{%s}" % [ RESOURCE_EXTNAMES.join(',') ]
 
 	# The subdirectories to create under the manual dir
 	DEFAULT_MANUAL_SUBDIRS = [
@@ -129,7 +129,7 @@ module Hoe::ManualGen
 
 
 		### Create a new page-generator for the given +sourcefile+, which will use
-		### ones of the templates in +layouts_dir+ as a wrapper. The +basepath+ 
+		### ones of the templates in +layouts_dir+ as a wrapper. The +basepath+
 		### is the path to the base output directory, and the +catalog+ is the
 		### PageCatalog to which the page belongs.
 		def initialize( catalog, sourcefile, layouts_dir, basepath='.' )
@@ -306,9 +306,9 @@ module Hoe::ManualGen
 	### A catalog of Page objects that can be referenced by filters.
 	class PageCatalog
 
-		### Create a new PageCatalog that will load Page objects for .page files 
+		### Create a new PageCatalog that will load Page objects for .page files
 		### in the specified +sourcedir+.
-		def initialize( sourcedir, layoutsdir )			
+		def initialize( sourcedir, layoutsdir )
 			@sourcedir = sourcedir
 			@layoutsdir = layoutsdir
 
@@ -332,7 +332,7 @@ module Hoe::ManualGen
 		# An index of the pages in the catalog by title
 		attr_reader :title_index
 
-		# An index of the pages in the catalog by the URI of their source relative to the source 
+		# An index of the pages in the catalog by the URI of their source relative to the source
 		# directory
 		attr_reader :uri_index
 
@@ -352,14 +352,14 @@ module Hoe::ManualGen
 		### Traverse the catalog's #hierarchy, yielding to the given +builder+
 		### block for each entry, as well as each time a sub-hash is entered or
 		### exited, setting the +type+ appropriately. Valid values for +type+ are:
-		###	 
+		###
 		###		:entry, :section, :section_end
 		###
 		### If the optional +from+ value is given, it should be the Page object
-		### which is considered "current"; if the +from+ object is the same as the 
-		### hierarchy entry being yielded, it will be yielded with the +type+ set to 
+		### which is considered "current"; if the +from+ object is the same as the
+		### hierarchy entry being yielded, it will be yielded with the +type+ set to
 		### one of:
-		### 
+		###
 		###     :current_entry, :current_section, :current_section_end
 		###
 		### each of which correspond to the like-named type from above.
@@ -387,7 +387,7 @@ module Hoe::ManualGen
 		end
 
 
-		### Return the specified hierarchy of pages as a sorted Array of tuples. 
+		### Return the specified hierarchy of pages as a sorted Array of tuples.
 		### Sort the hierarchy using the 'index' config value of either the
 		### page, or the directory's index page if it's a directory.
 		def sort_hierarchy( hierarchy )
@@ -432,7 +432,7 @@ module Hoe::ManualGen
 				[ path, section.keys, from.sourcefile ]
 
 			# Call the callback with :section -- determine the section title from
-			# the 'index.page' file underneath it, or the directory name if no 
+			# the 'index.page' file underneath it, or the directory name if no
 			# index.page exists.
 			if section.key?( INDEX_PATH )
 				if section[INDEX_PATH].sourcefile.dirname == from.sourcefile.dirname
@@ -482,7 +482,7 @@ module Hoe::ManualGen
 				@title_index[ page.title ]  = page
 				@uri_index[ hierpath.to_s ] = page
 
-				# Place the page in the page hierarchy by using inject to find and/or create the 
+				# Place the page in the page hierarchy by using inject to find and/or create the
 				# necessary subhashes. The last run of inject will return the leaf hash in which
 				# the page will live
 				section = hierpath.dirname.split[1..-1].inject( @hierarchy ) do |hier, component|
@@ -553,6 +553,9 @@ module Hoe::ManualGen
 		@manual_lib_dir      = DEFAULT_LIB_DIR
 		@manual_metadata     = DEFAULT_METADATA
 		@manual_paths = {}
+
+		self.extra_dev_deps << ['hoe-manualgen', "~> #{VERSION}"] unless
+			self.name == 'hoe-manualgen'
 	end
 
 
@@ -608,7 +611,7 @@ module Hoe::ManualGen
 			mkpath( dir, :mode => 0755 )
 		end
 
-		Pathname.glob( templatedir + '**/*.{rb,css,png,js,erb,page}' ).each do |tmplfile|
+		Pathname.glob( templatedir + RESOURCE_GLOB_PATTERN ).each do |tmplfile|
 
 			# Render ERB files
 			if tmplfile.extname == '.erb'
@@ -751,7 +754,7 @@ module Hoe::ManualGen
 
 	### Set up a rule for copying files from the resources directory to the output dir.
 	def setup_resource_copy_tasks( resourcedir, outputdir )
-		glob = resourcedir + '**/*.{js,css,png,gif,jpg,html,svg,svgz,swf}'
+		glob = resourcedir + RESOURCE_GLOB_PATTERN
 		resources = FileList[ glob.to_s ]
 		resources.exclude( /\.svn/ )
 		target_pathmap = "%%{%s,%s}p" % [ resourcedir, outputdir ]
@@ -765,7 +768,7 @@ module Hoe::ManualGen
 
 		desc "Copy API documentation to the manual output directory"
 		task :copy_apidocs => [ outputdir.to_s, :docs ] do
-			# Since Hoe hard-codes the 'docs' output dir, it's hard-coded 
+			# Since Hoe hard-codes the 'docs' output dir, it's hard-coded
 			# here too.
 			apidir = outputdir + 'api'
 			self.manual_metadata.api_dir = apidir
@@ -779,6 +782,5 @@ module Hoe::ManualGen
 		end
 	end
 
-end # module Hoe::ManualGen
-end # unless defined?...
+end unless defined?( Hoe::ManualGen )
 

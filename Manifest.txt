@@ -1,3 +1,4 @@
+.autotest
 History.md
 README.md
 Rakefile
@@ -6,8 +7,10 @@ data/hoe-manualgen/lib/api-filter.rb
 data/hoe-manualgen/lib/editorial-filter.rb
 data/hoe-manualgen/lib/examples-filter.rb
 data/hoe-manualgen/lib/links-filter.rb
-data/hoe-manualgen/resources/css/baseline.compress.css
 data/hoe-manualgen/resources/css/manual.css.erb
+data/hoe-manualgen/resources/fonts/GraublauWeb.otf
+data/hoe-manualgen/resources/fonts/GraublauWebBold.otf
+data/hoe-manualgen/resources/fonts/Inconsolata.otf
 data/hoe-manualgen/resources/images/arrow_225_small.png
 data/hoe-manualgen/resources/images/arrow_315_small.png
 data/hoe-manualgen/resources/images/arrow_skip.png
@@ -29,7 +32,6 @@ data/hoe-manualgen/resources/images/wrap.png
 data/hoe-manualgen/resources/images/wrapping.png
 data/hoe-manualgen/resources/js/jquery-1.4.4.min.js
 data/hoe-manualgen/resources/js/manual.js
-data/hoe-manualgen/resources/js/modernizr-1.6.min.js
 data/hoe-manualgen/resources/js/sh.js
 data/hoe-manualgen/resources/swf/clipboard.swf
 data/hoe-manualgen/src/index.page.erb
