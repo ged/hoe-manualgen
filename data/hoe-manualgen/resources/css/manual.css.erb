@@ -1,8 +1,15 @@
 /* 
- *	<%= name %> Manual Stylesheet
- *	Authors:
- *  - Michael Granger <ged@FaerieMUD.org>
+ * <%= name %> Manual Stylesheet
+ *  
+ * Authors:
+ * Michael Granger <ged@FaerieMUD.org>
+ *  
+ * Two column fluid layout adapted from Matthew James Taylor's 
+ * "Perfect 'Left Menu' 2 Column Liquid Layout":
+ * http://matthewjamestaylor.com/blog/perfect-2-column-left-menu.htm
  */
+
+@import url(reset.css);
 
 @font-face {
 	font-family: GraublauWeb;
@@ -20,122 +27,24 @@
 	src: url(../fonts/Inconsolata.otf) format(truetype);
 }
 
-/* @group Reset */
-
-html,body,div,span,a,img,h1,h2,h3,h4,h5,h6,hgroup,p,dl,dialog,dt,dd,ol,ul,li,abbr,
-acronym,address,b,big,blockquote,cite,code,del,dfn,em,i,ins,kbd,pre,q,samp,tt,var,
-small,strong,sub,sup,object,iframe,form,fieldset,label,legend,table,caption,tbody,
-tfoot,thead,tr,th,td,article,aside,footer,header,nav,section,figure,menu,time,mark,
-audio,video {
-	font-family: inherit;
-	font-size: 100%;
-	font-weight: inherit;
-	font-style: inherit;
-	vertical-align: baseline;
-	white-space: normal;
-	text-align: left;
-	margin: 0;
-	padding: 0;
-	border: 0;
-	outline: 0;
-	background: transparent
-}
-
-textarea {
-	font-family: inherit;
-	font-size: 100%;
-	font-weight: normal;
-	font-style: normal;
-	white-space: normal;
-	text-align: left;
-	margin: 0;
-	padding: 0
-}
-
-article,aside,footer,header,nav,section,dialog,figure,hgroup,menu {
-	display: block
-}
-
-h1,h2,h3,h4,h5,h6 {
-	font-size: 100%;
-	font-weight: normal
-}
-
-del,ins {
-	text-decoration: none
-}
-
-ol,ul {
-	list-style: none
-}
-
-nav ul {
-	list-style-type: none
-}
-
-table {
-	border-collapse: separate;
-	border-spacing: 0;
-	background-color: transparent;
-	width: auto;
-	height: auto
-}
-
-:focus {
-	outline: 0
-}
-
-blockquote:before,blockquote:after,q:before,q:after {
-	content: ""
-}
-
-blockquote,q {
-	quotes: "" ""
-}
-
-input {
-	margin: 0
-}
-
-applet,basefont,dir,font,isindex,menu,s,strike,u {
-	font-family: inherit;
-	font-size: 100%;
-	font-weight: normal;
-	font-style: normal;
-	white-space: normal;
-	vertical-align: baseline;
-	text-decoration: inherit;
-	text-align: left;
-	color: inherit;
-	margin: 0;
-	padding: 0;
-	border: 0;
-	outline: 0
-}
-
-dir,menu {
-	list-style: none
-}
-
-nobr {
-	white-space: normal
-}
-
-blink {
-	text-decoration: none
-}
-
-marquee {
-	overflow: visible
-}
-
-/* @end */
-
 
 /* @group Elements */
+html {
+	background-color: #a5a5a5;
+}
+
 body {
+	margin: 0;
+	padding: 0;
 	min-width: 800px;
 	font-family: GraublauWeb, sans-serif;
+}
+
+nav ul.index-section {
+	list-style: none;
+	padding: 0;
+	line-height: 1.5em;
+	margin: 0;
 }
 
 a {
@@ -156,16 +65,21 @@ h1, h2, h3, h4, h5, h6 {
 
 h1 {
 	font-size: 3em;
+	font-weight: bold;
 }
 
 h2 {
 	font-size: 2em;
+	font-weight: bold;
 }
 
 h3 {
 	font-size: 1.5em;
 }
 
+p {
+	margin: 0;
+}
 p + p {
 	margin-top: 1em;
 }
@@ -181,6 +95,45 @@ code, pre {
 
 code {
 	background-color: rgba(179,179,179,0.4);
+}
+
+dl {
+	margin: 0.5em 0;
+	padding: 0 0.5em;
+}
+dt {
+	padding: 0 0.25em;
+	border-top-left-radius: 0.5em;
+	border-top-right-radius: 0.5em;
+	background: -webkit-gradient(radial, 
+		20% 0, 0, 
+		20% 0, 800, 
+		color-stop(0.0,#bbb), 
+		color-stop(1.0,#cecece));
+	background: -moz-radial-gradient(
+		20% top, 
+		farthest-side, 
+		#bbb, 
+		#cecece);
+}
+dd {
+	padding: 0 0.25em;
+	border-bottom-left-radius: 0.5em;
+	border-bottom-right-radius: 0.5em;
+	margin-left: 0;
+	background: -webkit-gradient(radial, 
+		20% 0, 0, 
+		20% 0, 800, 
+		color-stop(0.0,#ddd), 
+		color-stop(1.0,#efefef));
+	background: -moz-radial-gradient(
+		20% top, 
+		farthest-side, 
+		#ddd, 
+		#efefef);
+}
+dd + dt {
+	margin-top: 0.5em;
 }
 /* @end */
 
@@ -234,11 +187,13 @@ header a {
 }
 
 aside#sidebar {
-	
+	margin: 0;
+	vertical-align: top;
 }
-
+aside#sidebar h3 {
+	margin: 0;
+}
 aside#sidebar nav {
-	
 }
 
 #auto-toc {
@@ -250,6 +205,19 @@ aside#sidebar nav {
 	border: 1px solid rgba(25,25,25,0.3);
 	border-radius: 4px;
 	-webkit-box-shadow: 0 0 3px #333;
+}
+#auto-toc h2 {
+	font-size: 1.2em;
+	font-weight: normal;
+	color: #999;
+}
+#auto-toc ul {
+	margin: 0;
+	padding-left: 0.2em;
+	list-style: none;
+}
+#auto-toc ul li {
+	margin: 0;
 }
 
 section#content {
@@ -263,6 +231,22 @@ section#content {
 	clear: both;
 	padding: 2em;
 	background: #a5a5a5;
+	background-image: -moz-linear-gradient(
+		top, 
+		#000000 0%, 
+		#ccc 8%, 
+		#adadad 51%, 
+		#a5a5a5 100%
+	);
+	background-image: -webkit-gradient(
+		linear, 
+		left top, 
+		left bottom, 
+		color-stop(0%,#888), 
+		color-stop(5%,#ccc), 
+		color-stop(51%,#adadad), 
+		color-stop(100%,#a5a5a5)
+	);
 	border-top: 2px solid rgba( 25,25,25, 0.2 );
 	font-size: 0.8em;
 }
@@ -291,18 +275,10 @@ p.caption {
 
 .colmask {
 	position: relative;
-
-/* This fixes the IE7 overflow hidden bug */
 	clear: both;
 	float: left;
-	width: 100
-
-%;
-	/* width of whole page */
-	overflow: hidd
-
-en;
-/* This chops off any overhanging divs */
+	width: 100%;
+	overflow: hidden;
 }
 
 /* common column settings */
@@ -329,41 +305,21 @@ en;
 
 .leftmenu {
 	background: #fff;
-
-
-/* right column background colour */
 }
 
 .leftmenu .colleft {
 	right: 75%;
-	
-
-/* right column width */
 	background: #ddd;
-
-/* left column background colour */
 }
 
 .leftmenu .col1 {
 	width: 71%;
-	
-
-/* right column content width */
 	left: 102%;
-/
-
-* 100% plus left column left padding */
 }
 
 .leftmenu .col2 {
 	width: 21%;
-	
-
-/* left column content width (column width minus left and right padding) */
 	left: 6%;
-/
-
-* (right column left and right padding) plus (left column left padding) */
 }
 
 /* @end */
@@ -371,24 +327,18 @@ en;
 /* @group Examples */
 
 div.caption {
-	font-size: 12px;
+	font-size: 0.8em;
 	text-align: center;
 	padding: 0.25em 0;
 	overflow: hidden;
-	border: 1px solid black;
-	background-color: #ccc;
-	-webkit-border-bottom-left-radius: 5px;
-	-webkit-border-bottom-right-radius: 5px;
-	-moz-border-radius-bottomleft: 5px;
-	-moz-border-radius-bottomright: 5px;
 }
 
 div.example {
-	max-width: 60em;
-	margin: 1.5em 0;
+	margin: 0.5em;
 	padding: 0;
-	font: 12px "Bitstream Vera Sans Mono", monospace;
+	font: 0.9em Inconsolata, Menlo, "Bitstream Vera Sans Mono", monospace;
 	overflow: hidden;
+	line-height: 1.1em;
 }
 
 div.example pre {

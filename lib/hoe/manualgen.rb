@@ -400,7 +400,7 @@ module Hoe::ManualGen
 					if page_or_section[INDEX_PATH]
 						idx = page_or_section[INDEX_PATH].config['index']
 						trace "Index page's index for directory '%s' is: %p" % [ subpath, idx ]
-						idx.to_s || subpath.to_s
+						"%08d:%s" % [ idx || 0, subpath.to_s ]
 					else
 						trace "Using the path for the sort of directory %p" % [ subpath ]
 						subpath.to_s
@@ -414,7 +414,7 @@ module Hoe::ManualGen
 					else
 						idx = page_or_section.config['index']
 						trace "Sort index for page %p is: %p" % [ subpath, idx ]
-						idx.to_s || subpath.to_s
+						"%08d:%s" % [ idx || 0, subpath.to_s ]
 					end
 				end
 
