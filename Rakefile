@@ -1,6 +1,11 @@
 #!/usr/bin/env rake
 
-require 'hoe'
+begin
+	require 'hoe'
+rescue LoadError
+	$stderr.puts "This Rakefile requires Hoe (gem install hoe)"
+end
+
 require 'rake/clean'
 
 Hoe.add_include_dirs 'lib'

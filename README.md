@@ -6,7 +6,11 @@
 
 A manual-generation plugin for Hoe.
 
-More details when it works.
+This is a plugin for [Hoe][hoe] that adds tasks and resources for
+generating a manual or cookbook.
+
+It's self-documenting, so for more, see [the latest manual for hoe-manualgen itself][hoe-manual-manual].
+
 
 ## Installation
 
@@ -17,15 +21,15 @@ More details when it works.
 
 You can check out the current development source with Mercurial like so:
 
-    hg clone FIX (hg repo)
+	hg clone http://bitbucket.org/ged/hoe-manualgen
 
 Or if you prefer Git, via its Github mirror:
 
-    FIX (github mirror)
+	https://github.com/ged/hoe-manualgen
 
 After checking out the source, run:
 
-  $ rake newb
+	$ rake newb
 
 This task will install any missing dependencies, run the tests/specs,
 and generate the API documentation.
@@ -33,7 +37,7 @@ and generate the API documentation.
 
 ## License
 
-Copyright (c) 2010, Michael Granger
+Copyright (c) 2010, 2011, Michael Granger
 All rights reserved.
 
 Redistribution and use in source and binary forms, with or without
@@ -60,3 +64,9 @@ SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER
 CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY,
 OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+
+
+[hoe]:http://seattlerb.rubyforge.org/hoe/
+[hoe-manualgen-manual]:http://deveiate.org/code/hoe-manualgen/
+
+

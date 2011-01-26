@@ -80,13 +80,20 @@ h3 {
 p {
 	margin: 0;
 }
-p + p {
+p + p,
+p + ul,
+p + ol {
 	margin-top: 1em;
 }
 
 p + h2,
 p + h3 {
 	margin-top: 1em;
+}
+
+li {
+	list-style: disc;
+	margin: 0.5em 1.2em
 }
 
 code, pre {
@@ -140,7 +147,7 @@ dd + dt {
 
 /* @group IDed elements */
 #page {
-	
+
 }
 
 #page > header {
@@ -173,12 +180,12 @@ dd + dt {
 }
 
 #page > header h2.tagline {
-	font-weight: bold;
-	margin-top: -1.5em;
-	text-shadow: 1px 1px 2px rgba( 25,25,25, 0.5 );
+	font-weight: normal;
 	letter-spacing: 0.35em;
-	z-index: 1;
-	color: transparent;
+	color: #eee;
+	font-size: 1.2em;
+	margin-top: -1em;
+	margin-left: 1em;
 }
 
 header a {
@@ -213,18 +220,16 @@ aside#sidebar nav {
 }
 #auto-toc ul {
 	margin: 0;
-	padding-left: 0.2em;
-	list-style: none;
+	padding: 0;
 }
 #auto-toc ul li {
 	margin: 0;
+	list-style: none;
 }
 
 section#content {
 	padding: 0;
 }
-/* @end */
-
 
 #page > footer {
 	color: #444;
@@ -250,6 +255,9 @@ section#content {
 	border-top: 2px solid rgba( 25,25,25, 0.2 );
 	font-size: 0.8em;
 }
+/* @end */
+
+
 
 /* @group Generic Classes */
 
@@ -361,7 +369,7 @@ pre.deveiate .line-numbers {
 }
 
 pre.console-output {
-	
+
 }
 
 /* @end Examples */
@@ -428,7 +436,7 @@ div.callout.caution-callout {
 .syntaxhighlighter div,
 .syntaxhighlighter code,
 .syntaxhighlighter span {
-	
+
 }
 
 .syntaxhighlighter {
@@ -707,7 +715,7 @@ div.callout.caution-callout {
 /* First line */
 
 .syntaxhighlighter .line.alt1 .content {
-	
+
 }
 
 /* Second line */
