@@ -45,6 +45,8 @@ module Hoe::ManualGen
 	DEFAULT_LIB_DIR      = 'lib'
 	DEFAULT_METADATA     = OpenStruct.new
 
+	DEFAULT_MANUAL_TEMPLATE_DIR = Pathname( Gem.datadir('hoe-manualgen') || 'data/hoe-manualgen' )
+
 	# A glob pattern for matching resource files when copying them around
 	RESOURCE_EXTNAMES = %w[ css erb gif html jpg js otf page png rb svg svgz swf ]
 	RESOURCE_GLOB_PATTERN = "**/*.{%s}" % [ RESOURCE_EXTNAMES.join(',') ]
@@ -533,7 +535,8 @@ module Hoe::ManualGen
 	end
 
 
-	attr_accessor :manual_base_dir,
+	attr_accessor :manual_template_dir,
+		:manual_base_dir,
 		:manual_source_dir,
 		:manual_layouts_dir,
 		:manual_output_dir,
@@ -545,6 +548,7 @@ module Hoe::ManualGen
 
 	### Hoe callback -- set up defaults
 	def initialize_manualgen
+		@manual_template_dir = DEFAULT_MANUAL_TEMPLATE_DIR
 		@manual_base_dir     = DEFAULT_BASE_DIR
 		@manual_source_dir   = DEFAULT_SOURCE_DIR
 		@manual_layouts_dir  = DEFAULT_LAYOUTS_DIR
@@ -565,6 +569,7 @@ module Hoe::ManualGen
 		# Make Pathnames of the directories relative to the base_dir
 		basedir = Pathname( self.manual_base_dir )
 		@manual_paths = {
+			:templatedir => Pathname( self.manual_template_dir ),
 			:basedir     => basedir,
 			:sourcedir   => basedir + self.manual_source_dir,
 			:layoutsdir  => basedir + self.manual_layouts_dir,
@@ -586,7 +591,7 @@ module Hoe::ManualGen
 
 	### Define tasks for creating a skeleton manual
 	def define_manual_setup_tasks( paths )
-		templatedir = Pathname( Gem.datadir('hoe-manualgen') || 'data/hoe-manualgen' )
+		templatedir = paths[:templatedir]
 		trace "Templatedir is: %s" % [ templatedir ]
 		manualdir = paths[:basedir]
 
@@ -594,7 +599,8 @@ module Hoe::ManualGen
 		task :manual do
 			log "No manual directory (#{manualdir}) currently exists."
 			ask_for_confirmation( "Create a new manual directory tree from a template?" ) do
-				generate_manual_skeleton( manualdir, templatedir )
+				log "Generating manual skeleton"
+				install_manual_directory( manualdir, templatedir )
 			end
 
 		end # task :manual
@@ -602,10 +608,8 @@ module Hoe::ManualGen
 	end
 
 
-	### Generate a new manual directory from the specified +templatedir+.
-	def generate_manual_skeleton( manualdir, templatedir )
-		log "Generating manual skeleton"
-		manualdir.mkpath
+	### Generate (or refresh) a manual directory from the specified +templatedir+.
+	def install_manual_directory( manualdir, templatedir )
 
 		self.manual_paths.each do |key, dir|
 			mkpath( dir, :mode => 0755 )
@@ -637,6 +641,7 @@ module Hoe::ManualGen
 			end
 		end
 	end
+
 
 	### Define tasks for generating output for an existing manual.
 	def define_existing_manual_tasks( paths )
@@ -674,6 +679,15 @@ module Hoe::ManualGen
 
 			desc "Force a rebuild of the manual"
 			task :rebuild => [ :clean, :build ]
+
+			desc "Update the resources templates for the manual to the latest versions"
+			task :update do
+				ask_for_confirmation( "Update the resources/templates in the manual directory?" ) do
+					log "Updating..."
+					install_manual_directory( paths[:basedir], paths[:templatedir] )
+				end
+
+			end # task :manual
 
         end
 	end
