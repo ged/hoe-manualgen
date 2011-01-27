@@ -2,4 +2,4 @@ pkg/
 ^\.yardoc/
 ^doc/
 \.DS_Store
-^manual/
+^manual/(layouts|lib|resources)/

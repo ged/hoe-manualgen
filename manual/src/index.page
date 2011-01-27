@@ -1,0 +1,236 @@
+---
+title: Introduction
+layout: default
+index: 1
+filters:
+  - erb
+  - links
+  - examples
+  - textile
+---
+
+h2. <%= page.config['title'] %>
+
+<div id="auto-toc"></div>
+
+This is a manual for hoe-manualgen. Hoe-manualgen is a plugin for Hoe, a Rake/Rubygems helper for project Rakefiles. It adds tasks for creating, rendering, and uploading a technical manual or cookbook for your project.
+
+h3(#installation). Installation
+
+You can install the plugin via Rubygems in the usual manner:
+
+	$ sudo gem install hoe-manualgen
+
+After it's installed, you can enable it in your Hoe-ified Rakefile for access to the manual-generation tasks:
+
+<?example { language: ruby, caption: "Enable the 'manualgen' plugin in your Rakefile" } ?>
+require 'hoe'
+
+Hoe.plugin :manualgen
+
+Hoe.spec 'my-project' do
+	# ...
+end
+<?end?>	
+
+h3(#rake-tasks). Rake Tasks
+
+The plugin only defines one task called @manual@ at first, which will set up a basic manual directory structure in your project. You can execute it by running @rake manual@:
+
+<?example {language: bash, caption: "Creating the manual directory-structure." } ?>
+$ rake manual
+(in /Users/jrandom/source/ruby/my-project)
+Create a new manual directory tree from a template? [n] y
+Generating manual skeleton
+mkdir -p -m 755 manual/output
+mkdir -p -m 755 manual/src
+mkdir -p -m 755 manual/layouts
+mkdir -p -m 755 manual/lib
+mkdir -p -m 755 manual
+mkdir -p -m 755 manual/resources
+generating manual/layouts/default.erb
+generating manual/resources/css/manual.css
+generating manual/src/index.page
+mkdir -p -m 755 manual/resources/js
+install -c -m 0644 .../hoe-manualgen/resources/js/jquery-1.4.4.min.js manual/resources/js/jquery-1.4.4.min.js
+install -c -m 0644 .../hoe-manualgen/resources/js/manual.js manual/resources/js/manual.js
+install -c -m 0644 .../hoe-manualgen/resources/js/sh.js manual/resources/js/sh.js
+mkdir -p -m 755 manual/resources/fonts
+install -c -m 0644 .../hoe-manualgen/resources/fonts/GraublauWeb.otf manual/resources/fonts/GraublauWeb.otf
+install -c -m 0644 .../hoe-manualgen/resources/fonts/GraublauWebBold.otf manual/resources/fonts/GraublauWebBold.otf
+install -c -m 0644 .../hoe-manualgen/resources/fonts/Inconsolata.otf manual/resources/fonts/Inconsolata.otf
+mkdir -p -m 755 manual/resources/images
+install -c -m 0644 .../hoe-manualgen/resources/images/arrow_225_small.png manual/resources/images/arrow_225_small.png
+install -c -m 0644 .../hoe-manualgen/resources/images/arrow_315_small.png manual/resources/images/arrow_315_small.png
+install -c -m 0644 .../hoe-manualgen/resources/images/arrow_skip.png manual/resources/images/arrow_skip.png
+install -c -m 0644 .../hoe-manualgen/resources/images/cc-by.png manual/resources/images/cc-by.png
+install -c -m 0644 .../hoe-manualgen/resources/images/dialog-error.png manual/resources/images/dialog-error.png
+install -c -m 0644 .../hoe-manualgen/resources/images/dialog-information.png manual/resources/images/dialog-information.png
+install -c -m 0644 .../hoe-manualgen/resources/images/dialog-warning.png manual/resources/images/dialog-warning.png
+install -c -m 0644 .../hoe-manualgen/resources/images/emblem-important.png manual/resources/images/emblem-important.png
+install -c -m 0644 .../hoe-manualgen/resources/images/help.png manual/resources/images/help.png
+install -c -m 0644 .../hoe-manualgen/resources/images/information.png manual/resources/images/information.png
+install -c -m 0644 .../hoe-manualgen/resources/images/magnifier.png manual/resources/images/magnifier.png
+install -c -m 0644 .../hoe-manualgen/resources/images/magnifier_left.png manual/resources/images/magnifier_left.png
+install -c -m 0644 .../hoe-manualgen/resources/images/page_white_code.png manual/resources/images/page_white_code.png
+install -c -m 0644 .../hoe-manualgen/resources/images/page_white_copy.png manual/resources/images/page_white_copy.png
+install -c -m 0644 .../hoe-manualgen/resources/images/printer.png manual/resources/images/printer.png
+install -c -m 0644 .../hoe-manualgen/resources/images/question.png manual/resources/images/question.png
+install -c -m 0644 .../hoe-manualgen/resources/images/scripts_code.png manual/resources/images/scripts_code.png
+install -c -m 0644 .../hoe-manualgen/resources/images/wrap.png manual/resources/images/wrap.png
+install -c -m 0644 .../hoe-manualgen/resources/images/wrapping.png manual/resources/images/wrapping.png
+install -c -m 0644 .../hoe-manualgen/lib/api-filter.rb manual/lib/api-filter.rb
+install -c -m 0644 .../hoe-manualgen/lib/editorial-filter.rb manual/lib/editorial-filter.rb
+install -c -m 0644 .../hoe-manualgen/lib/examples-filter.rb manual/lib/examples-filter.rb
+install -c -m 0644 .../hoe-manualgen/lib/links-filter.rb manual/lib/links-filter.rb
+mkdir -p -m 755 manual/resources/swf
+install -c -m 0644 .../hoe-manualgen/resources/swf/clipboard.swf manual/resources/swf/clipboard.swf
+<?end?>
+
+It creates a directory called 'manual' (by default) at the root of your project and copies some default resources, templates, and filters into it. It also generates a minimal index page for your new manual to get you started at @manual/src/index.page@. It looks something like this:
+
+<?example { language: html, caption: "The initial index page."} ?>
+---
+title: Introduction
+layout: default
+tagline: I'm a tagline!
+index: 1
+filters:
+  - erb
+  - links
+  - examples
+  - textile
+---
+
+h2. <%= page.config['title'] %>
+
+<div id="auto-toc"></div>
+
+This is a manual for my-project. It's not done yet.
+
+h3. Authors
+
+* J. Random Hacker
+
+
+h3. License
+
+Copyright © 2011, J. Random Hacker
+All rights reserved.
+
+Redistribution and use in source and binary forms, with or without modification, are
+permitted provided that the following conditions are met:
+
+* Redistributions of source code must retain the above copyright notice, this list of
+  conditions and the following disclaimer.
+* Redistributions in binary form must reproduce the above copyright notice, this list of
+  conditions and the following disclaimer in the documentation and/or other materials
+  provided with the distribution.
+* Neither the name of the authors nor contributors may be used to endorse or promote products
+  derived from this software without specific prior written permission.
+
+THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND ANY
+EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF
+MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE
+COPYRIGHT OWNER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL,
+EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF
+SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION)
+HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR
+TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
+SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+
+<div id="cc-license">
+<a rel="license" href="http://creativecommons.org/licenses/by/3.0/">
+	!http://i.creativecommons.org/l/by/3.0/88x31.png(Creative Commons License)!
+</a><br/>
+The content of this manual, including images, video, and any example source code is 
+licensed under a <a rel="license" href="http://creativecommons.org/licenses/by/3.0/">Creative 
+	Commons Attribution 3.0 License</a>.
+</div>
+<?end?>
+
+With an existing manual directory structure, the @manual@ task will render the manual, so you can actually render the basic index page right after setting it up:
+
+<?example { language: shell, caption: "Generating the manual." } ?>
+$ rake manual
+(in /Users/jrandom/source/ruby/my-project)
+Copying manual resources
+[info]: Re-generating object MyProject::Server...
+[info]: Re-generating object MyProject::Authentication...
+[info]: Re-generating object MyProject::User...
+[info]: Re-generating object MyProject...
+[info]: Re-generating object ...
+Files:           4
+Modules:         2 (    0 undocumented)
+Classes:         2 (    1 undocumented)
+Constants:      17 (    1 undocumented)
+Methods:        25 (    0 undocumented)
+ 95.65% documented
+cp -r doc manual/output/api
+  manual/src/index.page -> manual/output/index.html
+<?end?>
+
+As you can see, the task renders each @.page@ file it finds in the source directory as an HTML file, and copies the API documentation generated by RDoc into a subdirectory. This is used by the API filter to auto-generate links from the manual to the appropriate spot in the documentation. The particulars are covered "a little later":#filters.
+
+
+h3(#configuration). Configuration
+
+h3(#page-structure). Page Structure
+
+h4(#page-structure-header). Header
+
+The page header, as mentioned before, is used to set metadata values that control page order in the index, the page's title, which filters it will use to transform the page content, and other similar things.
+
+- @title@ := Used in the HTML header, auto-generated indexes, and for referring to the page from other pages via the @<?link ?>@ tag.
+- @filters@ := The filters that should be used to render the page content, in the order they should be run.
+
+h4(#page-structure-content). Content
+
+h3(#filters). Filters
+
+h4(#filters-builtin). Built-in Filters
+
+h4(#filters-writing-your-own). Writing Your Own Filters
+
+h3(#customization). Customization
+
+
+h3(#authors). Authors
+
+* Michael Granger <ged@FaerieMUD.org>
+
+
+h3(#license). License
+
+Copyright © 2011, Michael Granger
+All rights reserved.
+
+Redistribution and use in source and binary forms, with or without modification, are
+permitted provided that the following conditions are met:
+
+* Redistributions of source code must retain the above copyright notice, this list of
+  conditions and the following disclaimer.
+* Redistributions in binary form must reproduce the above copyright notice, this list of
+  conditions and the following disclaimer in the documentation and/or other materials
+  provided with the distribution.
+* Neither the name of the authors nor contributors may be used to endorse or promote products
+  derived from this software without specific prior written permission.
+
+THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND ANY
+EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF
+MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE
+COPYRIGHT OWNER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL,
+EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF
+SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION)
+HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR
+TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
+SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+
+<div id="cc-license">
+<a rel="license" href="http://creativecommons.org/licenses/by/3.0/">
+	!http://i.creativecommons.org/l/by/3.0/88x31.png(Creative Commons License)!
+</a><br/>
+The content of this manual, including images, video, and any example source code is 
+licensed under a <a rel="license" href="http://creativecommons.org/licenses/by/3.0/">Creative 
+	Commons Attribution 3.0 License</a>.
+</div>
