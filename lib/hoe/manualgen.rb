@@ -609,13 +609,17 @@ module Hoe::ManualGen
 
 
 	### Generate (or refresh) a manual directory from the specified +templatedir+.
-	def install_manual_directory( manualdir, templatedir )
+	def install_manual_directory( manualdir, templatedir, include_srcdir=true )
 
 		self.manual_paths.each do |key, dir|
 			mkpath( dir, :mode => 0755 )
 		end
 
 		Pathname.glob( templatedir + RESOURCE_GLOB_PATTERN ).each do |tmplfile|
+			if tmplfile.to_s =~ %r{/src/}
+				trace "Skipping %s" % [ tmplfile ]
+				next unless include_srcdir
+			end
 
 			# Render ERB files
 			if tmplfile.extname == '.erb'
@@ -627,17 +631,17 @@ module Hoe::ManualGen
 				html = template.result( binding() )
 				log "generating #{target}"
 
-				target.open( File::WRONLY|File::CREAT|File::EXCL, 0644 ) do |fh|
+				target.open( File::WRONLY|File::CREAT|File::TRUNC, 0644 ) do |fh|
 					fh.print( html )
 				end
 
 			# Just copy anything else
 			else
 				target = manualdir + tmplfile.relative_path_from( templatedir )
-				FileUtils.mkpath target.dirname,
-					:mode => 0755, :verbose => true, :noop => $dryrun unless target.dirname.directory?
-				FileUtils.install tmplfile, target,
-					:mode => 0644, :verbose => true, :noop => $dryrun
+				mkpath target.dirname,
+					:mode => 0755, :noop => $dryrun unless target.dirname.directory?
+				install tmplfile, target,
+					:mode => 0644, :noop => $dryrun
 			end
 		end
 	end
@@ -684,7 +688,7 @@ module Hoe::ManualGen
 			task :update do
 				ask_for_confirmation( "Update the resources/templates in the manual directory?" ) do
 					log "Updating..."
-					install_manual_directory( paths[:basedir], paths[:templatedir] )
+					install_manual_directory( paths[:basedir], paths[:templatedir], false )
 				end
 
 			end # task :manual
