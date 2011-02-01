@@ -4,7 +4,6 @@ layout: default
 index: 1
 filters:
   - erb
-  - links
   - examples
   - textile
 ---
@@ -35,56 +34,14 @@ end
 
 h3(#rake-tasks). Rake Tasks
 
-The plugin only defines one task called @manual@ at first, which will set up a basic manual directory structure in your project. You can execute it by running @rake manual@:
+If you don't already have a manual for your project, the plugin only defines one task called @manual@, which will set up a basic manual directory structure in your project. You can execute it by running @rake manual@:
 
 <?example {language: bash, caption: "Creating the manual directory-structure." } ?>
 $ rake manual
 (in /Users/jrandom/source/ruby/my-project)
 Create a new manual directory tree from a template? [n] y
 Generating manual skeleton
-mkdir -p -m 755 manual/output
-mkdir -p -m 755 manual/src
-mkdir -p -m 755 manual/layouts
-mkdir -p -m 755 manual/lib
-mkdir -p -m 755 manual
-mkdir -p -m 755 manual/resources
-generating manual/layouts/default.erb
-generating manual/resources/css/manual.css
-generating manual/src/index.page
-mkdir -p -m 755 manual/resources/js
-install -c -m 0644 .../hoe-manualgen/resources/js/jquery-1.4.4.min.js manual/resources/js/jquery-1.4.4.min.js
-install -c -m 0644 .../hoe-manualgen/resources/js/manual.js manual/resources/js/manual.js
-install -c -m 0644 .../hoe-manualgen/resources/js/sh.js manual/resources/js/sh.js
-mkdir -p -m 755 manual/resources/fonts
-install -c -m 0644 .../hoe-manualgen/resources/fonts/GraublauWeb.otf manual/resources/fonts/GraublauWeb.otf
-install -c -m 0644 .../hoe-manualgen/resources/fonts/GraublauWebBold.otf manual/resources/fonts/GraublauWebBold.otf
-install -c -m 0644 .../hoe-manualgen/resources/fonts/Inconsolata.otf manual/resources/fonts/Inconsolata.otf
-mkdir -p -m 755 manual/resources/images
-install -c -m 0644 .../hoe-manualgen/resources/images/arrow_225_small.png manual/resources/images/arrow_225_small.png
-install -c -m 0644 .../hoe-manualgen/resources/images/arrow_315_small.png manual/resources/images/arrow_315_small.png
-install -c -m 0644 .../hoe-manualgen/resources/images/arrow_skip.png manual/resources/images/arrow_skip.png
-install -c -m 0644 .../hoe-manualgen/resources/images/cc-by.png manual/resources/images/cc-by.png
-install -c -m 0644 .../hoe-manualgen/resources/images/dialog-error.png manual/resources/images/dialog-error.png
-install -c -m 0644 .../hoe-manualgen/resources/images/dialog-information.png manual/resources/images/dialog-information.png
-install -c -m 0644 .../hoe-manualgen/resources/images/dialog-warning.png manual/resources/images/dialog-warning.png
-install -c -m 0644 .../hoe-manualgen/resources/images/emblem-important.png manual/resources/images/emblem-important.png
-install -c -m 0644 .../hoe-manualgen/resources/images/help.png manual/resources/images/help.png
-install -c -m 0644 .../hoe-manualgen/resources/images/information.png manual/resources/images/information.png
-install -c -m 0644 .../hoe-manualgen/resources/images/magnifier.png manual/resources/images/magnifier.png
-install -c -m 0644 .../hoe-manualgen/resources/images/magnifier_left.png manual/resources/images/magnifier_left.png
-install -c -m 0644 .../hoe-manualgen/resources/images/page_white_code.png manual/resources/images/page_white_code.png
-install -c -m 0644 .../hoe-manualgen/resources/images/page_white_copy.png manual/resources/images/page_white_copy.png
-install -c -m 0644 .../hoe-manualgen/resources/images/printer.png manual/resources/images/printer.png
-install -c -m 0644 .../hoe-manualgen/resources/images/question.png manual/resources/images/question.png
-install -c -m 0644 .../hoe-manualgen/resources/images/scripts_code.png manual/resources/images/scripts_code.png
-install -c -m 0644 .../hoe-manualgen/resources/images/wrap.png manual/resources/images/wrap.png
-install -c -m 0644 .../hoe-manualgen/resources/images/wrapping.png manual/resources/images/wrapping.png
-install -c -m 0644 .../hoe-manualgen/lib/api-filter.rb manual/lib/api-filter.rb
-install -c -m 0644 .../hoe-manualgen/lib/editorial-filter.rb manual/lib/editorial-filter.rb
-install -c -m 0644 .../hoe-manualgen/lib/examples-filter.rb manual/lib/examples-filter.rb
-install -c -m 0644 .../hoe-manualgen/lib/links-filter.rb manual/lib/links-filter.rb
-mkdir -p -m 755 manual/resources/swf
-install -c -m 0644 .../hoe-manualgen/resources/swf/clipboard.swf manual/resources/swf/clipboard.swf
+[...]
 <?end?>
 
 It creates a directory called 'manual' (by default) at the root of your project and copies some default resources, templates, and filters into it. It also generates a minimal index page for your new manual to get you started at @manual/src/index.page@. It looks something like this:
@@ -152,25 +109,28 @@ licensed under a <a rel="license" href="http://creativecommons.org/licenses/by/3
 With an existing manual directory structure, the @manual@ task will render the manual, so you can actually render the basic index page right after setting it up:
 
 <?example { language: shell, caption: "Generating the manual." } ?>
-$ rake manual
-(in /Users/jrandom/source/ruby/my-project)
+$ rake manual:rebuild
+(in /Users/mgranger/source/ruby/hoe-manualgen)
+rm -f manual/output/index.html
 Copying manual resources
-[info]: Re-generating object MyProject::Server...
-[info]: Re-generating object MyProject::Authentication...
-[info]: Re-generating object MyProject::User...
-[info]: Re-generating object MyProject...
-[info]: Re-generating object ...
-Files:           4
-Modules:         2 (    0 undocumented)
-Classes:         2 (    1 undocumented)
-Constants:      17 (    1 undocumented)
-Methods:        25 (    0 undocumented)
- 95.65% documented
+Parsing sources...
+100% [ 1/ 1]  lib/hoe/manualgen.rb                                              
+
+Generating Darkfish...
+
+Files:         1
+Classes:       5 (    0 undocumented)
+Constants:    17 (    9 undocumented)
+Modules:       2 (    1 undocumented)
+Methods:      30 (    0 undocumented)
+ 81.48% documented
+
+Elapsed: 0.8s
 cp -r doc manual/output/api
   manual/src/index.page -> manual/output/index.html
 <?end?>
 
-As you can see, the task renders each @.page@ file it finds in the source directory as an HTML file, and copies the API documentation generated by RDoc into a subdirectory. This is used by the API filter to auto-generate links from the manual to the appropriate spot in the documentation. The particulars are covered "a little later":#filters.
+As you can see, the task generates the API documentation, copies it into a subdirectory, then renders each @.page@ file it finds in the source directory as an HTML file. The API documentation is used by the API filter to auto-generate links from the manual to the appropriate spot in the documentation. The particulars are covered "a little later":#filters.
 
 
 h3(#configuration). Configuration

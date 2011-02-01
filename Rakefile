@@ -11,7 +11,6 @@ require 'rake/clean'
 Hoe.add_include_dirs 'lib'
 
 Hoe.plugin :mercurial
-Hoe.plugin :yard
 Hoe.plugin :signing
 Hoe.plugin :manualgen
 
@@ -19,6 +18,7 @@ Hoe.plugins.delete :rubyforge
 
 hoespec = Hoe.spec 'hoe-manualgen' do
 	self.readme_file = 'README.md'
+	self.history_file = 'History.md'
 
 	self.developer 'Michael Granger', 'ged@FaerieMUD.org'
 
@@ -37,8 +37,6 @@ hoespec = Hoe.spec 'hoe-manualgen' do
 	self.require_ruby_version( '>=1.8.7' )
 
 	self.hg_sign_tags = true if self.respond_to?( :hg_sign_tags= )
-	self.yard_opts = [ '--use-cache', '--protected', '--verbose' ] if
-		self.respond_to?( :yard_opts )
 
 	self.rdoc_locations << "deveiate:/usr/local/www/public/code/#{remote_rdoc_dir}"
 end

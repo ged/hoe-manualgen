@@ -9,7 +9,7 @@ A manual-generation plugin for Hoe.
 This is a plugin for [Hoe][hoe] that adds tasks and resources for
 generating a manual or cookbook.
 
-It's self-documenting, so for more, see [the latest manual for hoe-manualgen itself][hoe-manual-manual].
+It's self-documenting, so for more, see [the latest manual for hoe-manualgen itself][hoe-manualgen-manual].
 
 
 ## Installation

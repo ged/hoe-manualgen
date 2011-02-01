@@ -259,7 +259,7 @@ module Hoe::ManualGen
 		### Get (singleton) instances of the filters named in +filterlist+ and return them.
 		def load_filters( filterlist )
 			filterlist.flatten.collect do |key|
-				raise ArgumentError, "filter '#{key}' is not loaded" unless
+				raise ArgumentError, "filter '#{key}' could not be loaded" unless
 					Page::Filter.derivatives.key?( key )
 				Page::Filter.derivatives[ key ].instance
 			end
