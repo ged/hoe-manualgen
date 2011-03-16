@@ -23,12 +23,13 @@ hoespec = Hoe.spec 'hoe-manualgen' do
 	self.developer 'Michael Granger', 'ged@FaerieMUD.org'
 
 	self.extra_deps.push *{
-		'RedCloth'   => '~> 4.2.3',
-		'rcodetools' => '~> 0.8.5.0',
+		'hoe'        => "~> #{Hoe::VERSION[/^\d+\.\d+/]}",
+		'RedCloth'   => '~> 4.2',
+		'rcodetools' => '~> 0.8',
 	}
 	self.extra_dev_deps.push *{
-		'rspec'    => '~> 2.4.0',
-		'tidy-ext' => '~> 0.1.10',
+		'rspec'    => '~> 2.4',
+		'tidy-ext' => '~> 0.1',
 	}
 
 	self.spec_extras[:licenses] = ["BSD"]

@@ -2,4 +2,5 @@ pkg/
 ^\.yardoc/
 ^doc/
 \.DS_Store
-^manual/(layouts|lib|resources|output)/
+^manual/(output|layouts|resources|lib)/
+~$
