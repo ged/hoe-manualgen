@@ -16,7 +16,7 @@
 ###   <?api Class::Name ?>
 ###   <?api "click here":Class::Name ?>
 ### 
-class Hoe::ManualGen::APIFilter < Hoe::ManualGen::Page::Filter
+class Hoe::ManualGen::APIFilter < Hoe::ManualGen::PageFilter
 
 	# PI	   ::= '<?' PITarget (S (Char* - (Char* '?>' Char*)))? '?>'
 	ApiPI = %r{

@@ -63,47 +63,9 @@ module Hoe::ManualGen
 	### Manual page-generation class
 	class Page
 
-		### An abstract filter class for manual content transformation.
-		class Filter
-			include Singleton
-
-			# A list of inheriting classes, keyed by normalized name
-			@derivatives = {}
-			class << self; attr_reader :derivatives; end
-
-			### Inheritance callback -- keep track of all inheriting classes for
-			### later.
-			def self::inherited( subclass )
-				key = subclass.name.
-					sub( /^.*::/, '' ).
-					gsub( /[^[:alpha:]]+/, '_' ).
-					downcase.
-					sub( /filter$/, '' )
-
-				self.derivatives[ key ] = subclass
-				self.derivatives[ key.to_sym ] = subclass
-
-				super
-			end
-
-
-			### Export any static resources required by this filter to the given +output_dir+.
-			def export_resources( output_dir )
-				# No-op by default
-			end
-
-
-			### Process the +page+'s source with the filter and return the altered content.
-			def process( source, page, metadata )
-				raise NotImplementedError,
-					"%s does not implement the #process method" % [ self.class.name ]
-			end
-		end # class Filter
-
-
 		### The default page configuration if none is specified.
 		DEFAULT_CONFIG = {
-			'filters' => [ 'erb', 'links', 'textile' ],
+			'filters' => [ 'erb', 'textile' ],
 			'layout'  => 'default.erb',
 			'cleanup' => false,
 		  }.freeze
@@ -260,8 +222,8 @@ module Hoe::ManualGen
 		def load_filters( filterlist )
 			filterlist.flatten.collect do |key|
 				raise ArgumentError, "filter '#{key}' could not be loaded" unless
-					Page::Filter.derivatives.key?( key )
-				Page::Filter.derivatives[ key ].instance
+					Hoe::ManualGen::PageFilter.derivatives.key?( key )
+				Hoe::ManualGen::PageFilter.derivatives[ key ].instance
 			end
 		end
 
@@ -499,8 +461,47 @@ module Hoe::ManualGen
 	end
 
 
+	### An abstract filter class for manual content transformation.
+	class PageFilter
+		include Singleton
+
+		# A list of inheriting classes, keyed by normalized name
+		@derivatives = {}
+		class << self; attr_reader :derivatives; end
+
+		### Inheritance callback -- keep track of all inheriting classes for
+		### later.
+		def self::inherited( subclass )
+			key = subclass.name.
+				sub( /^.*::/, '' ).
+				gsub( /[^[:alpha:]]+/, '_' ).
+				downcase.
+				sub( /filter$/, '' )
+
+			self.derivatives[ key ] = subclass
+			self.derivatives[ key.to_sym ] = subclass
+
+			super
+		end
+
+
+		### Export any static resources required by this filter to the given +output_dir+.
+		def export_resources( output_dir )
+			# No-op by default
+		end
+
+
+		### Process the +page+'s source with the filter and return the altered content.
+		def process( source, page, metadata )
+			raise NotImplementedError,
+				"%s does not implement the #process method" % [ self.class.name ]
+		end
+
+	end # class Hoe::ManualGen::PageFilter
+
+
 	### A Textile filter for the manual generation tasklib.
-	class TextileFilter < Page::Filter
+	class TextileFilter < Hoe::ManualGen::PageFilter
 
 		### Load RedCloth when the filter is first created
 		def initialize( *args )
@@ -518,11 +519,11 @@ module Hoe::ManualGen
 			return formatter.to_html
 		end
 
-	end
+	end # class Hoe::ManualGen::TextileFilter
 
 
 	### An ERB filter.
-	class ErbFilter < Page::Filter
+	class ErbFilter < Hoe::ManualGen::PageFilter
 
 		### Process the given +source+ as ERB and return the resulting HTML
 		### fragment.
@@ -532,7 +533,7 @@ module Hoe::ManualGen
 			return template.result( binding() )
 		end
 
-	end
+	end # class Hoe::ManualGen::ErbFilter
 
 
 	attr_accessor :manual_template_dir,
