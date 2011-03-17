@@ -69,13 +69,21 @@ h1 {
 }
 
 h2 {
+	margin-top: 1em;
 	font-size: 2em;
 	font-weight: bold;
 }
 
 h3 {
+	margin-top: 1em;
 	font-size: 1.5em;
+	font-weight: bold;
 }
+h4 {
+	margin-top: 1em;
+	font-size: 1.25em;
+}
+
 
 p {
 	margin: 0;
@@ -86,30 +94,26 @@ p + ol {
 	margin-top: 1em;
 }
 
-p + h2,
-p + h3 {
-	margin-top: 1em;
-}
-
 li {
 	list-style: disc;
 	margin: 0.5em 1.2em
 }
 
+pre {
+	margin: 1em 0;
+}
 code, pre {
+	background-color: rgba(179,179,179,0.4);
 	font-family: Inconsolata, monospace;
 }
 
-code {
-	background-color: rgba(179,179,179,0.4);
-}
 
 dl {
 	margin: 0.5em 0;
-	padding: 0 0.5em;
+	padding: 0;
 }
 dt {
-	padding: 0 0.25em;
+	padding: 0 0.75em;
 	border-top-left-radius: 0.5em;
 	border-top-right-radius: 0.5em;
 	background: -webkit-gradient(radial, 
@@ -124,7 +128,7 @@ dt {
 		#cecece);
 }
 dd {
-	padding: 0 0.25em;
+	padding: 0 0.75em;
 	border-bottom-left-radius: 0.5em;
 	border-bottom-right-radius: 0.5em;
 	margin-left: 0;
@@ -229,6 +233,11 @@ aside#sidebar nav {
 
 section#content {
 	padding: 0;
+}
+section#content > h2 {
+	margin-top: 0;
+}
+section#content h4 {
 }
 
 #page > footer {
@@ -461,7 +470,7 @@ div.callout.caution-callout {
 
 .syntaxhighlighter {
   width: 100%;
-  margin: 1em 0 1em 0;
+  margin: 1em 0 0 0;
   position: relative;
   overflow: auto;
   font-size: 1em;

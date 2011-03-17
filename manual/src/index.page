@@ -5,6 +5,7 @@ index: 1
 filters:
   - erb
   - examples
+  - api
   - textile
 ---
 
@@ -18,7 +19,7 @@ h3(#installation). Installation
 
 You can install the plugin via Rubygems in the usual manner:
 
-	$ sudo gem install hoe-manualgen
+bc. $ sudo gem install hoe-manualgen
 
 After it's installed, you can enable it in your Hoe-ified Rakefile for access to the manual-generation tasks:
 
@@ -135,7 +136,22 @@ As you can see, the task generates the API documentation, copies it into a subdi
 
 h3(#configuration). Configuration
 
+You can configure various aspects of the manual by configuring it in the @Hoe.spec@ block. The supported configuration attributes are:
+
+- @manual_template_dir@ := Set the directory which contains the template directory for creating new manuals. This is the directory used by the @manual@ task to create a manual from scratch, and also by the @manual:update@ task to update the static resources.
+- @manual_base_dir@ := Set the base directory of the manual build. All the paths other than @manual_template_dir@ are relative to this directory unless they begin with @'/'@.
+- @manual_source_dir@ := Set the directory which will contain the @.page@ source files. Defaults to @'src'@.
+- @manual_layouts_dir@ := Set the directory which will contain the ERb layouts. Defaults to @'layouts'@.
+- @manual_output_dir@ := Set the directory which will contain the rendered manual output. Defaults to @'output'@.
+- @manual_resource_dir@ := Set the directory which will contain static resources that should be copied into the output directory. Defaults to @'resources'@.
+- @manual_lib_dir@ := Set the directory which will contain Ruby filter libraries. Defaults to @'lib'@.
+- @manual_metadata@ := An OpenStruct which can be used to inject metadata into page files. Plugins receive this as the third argument to their @#process@ method, and it's visible as a @metadata@ local variable inside layouts and the default ERb filter.
+
+
 h3(#page-structure). Page Structure
+
+Pages are structured as a file with a YAML header followed by a content section. The content is rendered via one or more plugins which are listed in the header, in the order they are specified.
+
 
 h4(#page-structure-header). Header
 
@@ -150,9 +166,32 @@ h3(#filters). Filters
 
 h4(#filters-builtin). Built-in Filters
 
+- @textile@ := Renders Textile markup as HTML. See <?api Hoe::ManualGen::TextileFilter ?> for details.
+- @erb@ := Expands ERB tags. See <?api Hoe::ManualGen::ErbFilter ?> for details.
+
+
+h4(#default-filters). Default Filter Plugins
+
+- @api@ := Generate links to API documentation. See <?api Hoe::ManualGen::APIFilter ?> for details.
+- @editorial@ := Insert editorial markup. See <?api Hoe::ManualGen::EditorialFilter ?> for details.
+- @examples@ := Insert example code with syntax highlighting, optional XMP filtering, and captioning. See <?api Hoe::ManualGen::ExampleFilter ?> for details.
+- @links@ := Insert automatically-generated links to other pages by page title or filename. See <?api Hoe::ManualGen::LinksFilter ?> for details.
+
+
 h4(#filters-writing-your-own). Writing Your Own Filters
 
+Filters should inherit from <?api Hoe::ManualGen::PageFilter ?>, and implement a public @#process@ method. See <?api Hoe::ManualGen::PageFilter ?> for more details on how to write your own.
+
+
 h3(#customization). Customization
+
+In addition to writing your own page filters, you can also customize your manual by replacing or adding ERB templates to the @layouts@ directory. Each layout should contain:
+
+<?example { language: html, caption: Minimum layout template. } ?>
+<%%= content %>
+<?end?>
+
+The page's content section will be filtered through all of its configured filters, and then set as the @content@ local variable before the layout is rendered.
 
 
 h3(#authors). Authors
