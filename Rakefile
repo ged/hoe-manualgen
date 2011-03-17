@@ -39,6 +39,7 @@ hoespec = Hoe.spec 'hoe-manualgen' do
 
 	self.hg_sign_tags = true if self.respond_to?( :hg_sign_tags= )
 
+	self.extra_rdoc_files += Dir.glob( 'data/hoe-manualgen/lib/*.rb' )
 	self.rdoc_locations << "deveiate:/usr/local/www/public/code/#{remote_rdoc_dir}"
 end
 
