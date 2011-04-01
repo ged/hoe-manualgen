@@ -62,22 +62,13 @@ class Hoe::ManualGen::ExamplesFilter < Hoe::ManualGen::PageFilter
 
 	### Defer loading of dependenies until the filter is loaded
 	def initialize( *args )
-		begin
-			require 'pathname'
-			require 'strscan'
-			require 'yaml'
-			require 'rcodetools/xmpfilter'
-			require 'digest/md5'
-			require 'tmpdir'
-			require 'erb'
-		rescue LoadError => err
-			unless Object.const_defined?( :Gem )
-				require 'rubygems'
-				retry
-			end
-
-			raise
-		end
+		require 'pathname'
+		require 'strscan'
+		require 'yaml'
+		require 'rcodetools/xmpfilter'
+		require 'digest/md5'
+		require 'tmpdir'
+		require 'erb'
 	end
 
 
