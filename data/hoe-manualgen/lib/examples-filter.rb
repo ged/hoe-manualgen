@@ -1,11 +1,11 @@
-#!/usr/bin/ruby 
-# 
+#!/usr/bin/ruby
+#
 # A collection of standard filters for the manual generation tasklib.
-# 
+#
 # Authors:
 #   Michael Granger <ged@FaerieMUD.org>
-# 
-# 
+#
+#
 
 # Dependencies deferred until #initialize
 
@@ -13,7 +13,7 @@
 
 ### A filter for inline example code or command-line sessions -- does
 ### syntax-checking for some languages and captioning.
-### 
+###
 ### Examples are enclosed in XML processing instructions like so:
 ###
 ###   <?example {language: ruby, testable: true, caption: "A fine example"} ?>
@@ -24,7 +24,7 @@
 ### This will be pulled out into a preformatted section in the HTML,
 ### highlighted as Ruby source, checked for valid syntax, and annotated with
 ### the specified caption. Valid keys in the example PI are:
-### 
+###
 ### language::
 ###   Specifies which (machine) language the example is in.
 ### testable::
@@ -33,7 +33,7 @@
 ### caption::
 ###   A small blurb to put below the pulled-out example in the HTML.
 class Hoe::ManualGen::ExamplesFilter < Hoe::ManualGen::PageFilter
-	
+
 	DEFAULTS = {
 		:language     => :ruby,
 		:line_numbers => :inline,
@@ -56,7 +56,7 @@ class Hoe::ManualGen::ExamplesFilter < Hoe::ManualGen::PageFilter
 			)?
 		\?>
 	  }x
-	
+
 	EndPI = %r{ <\? end (?: \s+ example )? \s* \?> }x
 
 
@@ -79,8 +79,8 @@ class Hoe::ManualGen::ExamplesFilter < Hoe::ManualGen::PageFilter
 			raise
 		end
 	end
-	
-	
+
+
 	######
 	public
 	######
@@ -88,15 +88,15 @@ class Hoe::ManualGen::ExamplesFilter < Hoe::ManualGen::PageFilter
 	### Process the given +source+ for <?example ... ?> processing-instructions, calling out
 	def process( source, page, metadata )
 		scanner = StringScanner.new( source )
-		
+
 		buffer = ''
 		until scanner.eos?
 			startpos = scanner.pos
-			
+
 			# If we find an example
 			if scanner.skip_until( ExamplePI )
 				contents = ''
-				
+
 				# Append the interstitial content to the buffer
 				if ( scanner.pos - startpos > scanner.matched.length )
 					offset = scanner.pos - scanner.matched.length - 1
@@ -106,13 +106,13 @@ class Hoe::ManualGen::ExamplesFilter < Hoe::ManualGen::PageFilter
 				# Append everything up to it to the buffer and save the contents of
 				# the tag
 				params = scanner[1]
-				
+
 				# Now find the end of the example or complain
 				contentpos = scanner.pos
 				scanner.skip_until( EndPI ) or
-					raise "Unterminated example at line %d" % 
+					raise "Unterminated example at line %d" %
 						[ scanner.string[0..scanner.pos].count("\n") ]
-				
+
 				# Now build the example and append to the buffer
 				if ( scanner.pos - contentpos > scanner.matched.length )
 					offset = scanner.pos - scanner.matched.length - 1
@@ -128,11 +128,11 @@ class Hoe::ManualGen::ExamplesFilter < Hoe::ManualGen::PageFilter
 		end
 		buffer << scanner.rest
 		scanner.terminate
-		
+
 		return buffer
 	end
-	
-	
+
+
 	### Filter out 'example' macros, doing syntax highlighting, and running
 	### 'testable' examples through a validation process appropriate to the
 	### language the example is in.
@@ -141,7 +141,7 @@ class Hoe::ManualGen::ExamplesFilter < Hoe::ManualGen::PageFilter
 		caption = options.delete( :caption )
 		content = ''
 		lang = options.delete( :language ).to_s
-		
+
 		# Test it if it's testable
 		if options[:testable]
 			content = test_content( body, lang, page )
@@ -158,8 +158,8 @@ class Hoe::ManualGen::ExamplesFilter < Hoe::ManualGen::PageFilter
 	end
 
 
-	### Parse an options hash for filtering from the given +args+, which can either 
-	### be a plain String, in which case it is assumed to be the name of the language the example 
+	### Parse an options hash for filtering from the given +args+, which can either
+	### be a plain String, in which case it is assumed to be the name of the language the example
 	### is in, or a Hash of configuration options.
 	def parse_options( args )
 		args = "{ #{args} }" unless args.strip[0] == ?{
@@ -173,7 +173,7 @@ class Hoe::ManualGen::ExamplesFilter < Hoe::ManualGen::PageFilter
 		end
 		return DEFAULTS.merge( args )
 	end
-	
+
 
 	### Test the given +content+ with a rule specific to the given +language+.
 	def test_content( body, language, page )
@@ -188,8 +188,8 @@ class Hoe::ManualGen::ExamplesFilter < Hoe::ManualGen::PageFilter
 			return body
 		end
 	end
-	
-		
+
+
 	### Test the specified Ruby content for valid syntax
 	def test_ruby_content( source, page )
 		# $stderr.puts "Testing ruby content..."
@@ -216,8 +216,8 @@ class Hoe::ManualGen::ExamplesFilter < Hoe::ManualGen::PageFilter
 		return "%s while testing: %s\n  %s" %
 			[ err.class.name, err.message, err.backtrace.join("\n  ") ]
 	end
-	
-	
+
+
 	### Test the specified YAML content for valid syntax
 	def test_yaml_content( source, metadata )
 		YAML.load( source )
@@ -226,13 +226,13 @@ class Hoe::ManualGen::ExamplesFilter < Hoe::ManualGen::PageFilter
 	else
 		return source
 	end
-	
-	
+
+
 	### Highlights the given +content+ in language +lang+.
 	def highlight( content, options, lang )
 		source = ERB::Util.html_escape( content )
 		return %Q{\n\n<pre class="brush:#{lang}">#{source}</pre>\n\n}
 	end
-	
+
 end
 
