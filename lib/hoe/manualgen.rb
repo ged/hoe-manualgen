@@ -31,7 +31,7 @@ module Hoe::ManualGen
 	include FileUtils::DryRun if Rake.application.options.dryrun
 
 	# Library version constant
-	VERSION = '0.1.0'
+	VERSION = '0.1.1'
 
 	# Version-control revision constant
 	REVISION = %q$Revision$
@@ -60,8 +60,21 @@ module Hoe::ManualGen
 		DEFAULT_LIB_DIR,
 	]
 
+	### A collection of output methods for Rake tasks
+	module TraceFunctions
+
+		### Output a message if Rake -t is enabled
+		def trace( *messages )
+			return unless Rake.application.options.trace
+			$stderr.puts( messages )
+		end
+
+	end # module TraceFunctions
+
+
 	### Manual page-generation class
 	class Page
+		include Hoe::ManualGen::TraceFunctions
 
 		### The default page configuration if none is specified.
 		DEFAULT_CONFIG = {
@@ -269,6 +282,7 @@ module Hoe::ManualGen
 
 	### A catalog of Page objects that can be referenced by filters.
 	class PageCatalog
+		include Hoe::ManualGen::TraceFunctions
 
 		### Create a new PageCatalog that will load Page objects for .page files
 		### in the specified +sourcedir+.
@@ -463,7 +477,8 @@ module Hoe::ManualGen
 
 	### An abstract filter class for manual content transformation.
 	class PageFilter
-		include Singleton
+		include Singleton,
+		        Hoe::ManualGen::TraceFunctions
 
 		# A list of inheriting classes, keyed by normalized name
 		@derivatives = {}
@@ -558,6 +573,8 @@ module Hoe::ManualGen
 		@manual_lib_dir      = DEFAULT_LIB_DIR
 		@manual_metadata     = DEFAULT_METADATA
 		@manual_paths = {}
+
+		$trace = Rake.application.options.trace
 
 		self.extra_dev_deps << ['hoe-manualgen', "~> #{VERSION}"] unless
 			self.name == 'hoe-manualgen'
