@@ -60,21 +60,23 @@ module Hoe::ManualGen
 		DEFAULT_LIB_DIR,
 	]
 
-	### A collection of output methods for Rake tasks
-	module TraceFunctions
+	module Logging
 
-		### Output a message if Rake -t is enabled
-		def trace( *messages )
-			return unless Rake.application.options.trace
-			$stderr.puts( messages )
+		### Output a logging message
+		def log( message )
+			$stderr.puts( message )
 		end
 
-	end # module TraceFunctions
+		### Output a message if tracing or running in verbose mode
+		def trace( message )
+			$stderr.puts( message ) if $VERBOSE || Rake.application.options.trace
+		end
 
+	end
+	include Hoe::ManualGen::Logging
 
 	### Manual page-generation class
 	class Page
-		include Hoe::ManualGen::TraceFunctions
 
 		### The default page configuration if none is specified.
 		DEFAULT_CONFIG = {
@@ -282,7 +284,7 @@ module Hoe::ManualGen
 
 	### A catalog of Page objects that can be referenced by filters.
 	class PageCatalog
-		include Hoe::ManualGen::TraceFunctions
+		include Hoe::ManualGen::Logging
 
 		### Create a new PageCatalog that will load Page objects for .page files
 		### in the specified +sourcedir+.
@@ -478,7 +480,7 @@ module Hoe::ManualGen
 	### An abstract filter class for manual content transformation.
 	class PageFilter
 		include Singleton,
-		        Hoe::ManualGen::TraceFunctions
+		        Hoe::ManualGen::Logging
 
 		# A list of inheriting classes, keyed by normalized name
 		@derivatives = {}
@@ -573,8 +575,6 @@ module Hoe::ManualGen
 		@manual_lib_dir      = DEFAULT_LIB_DIR
 		@manual_metadata     = DEFAULT_METADATA
 		@manual_paths = {}
-
-		$trace = Rake.application.options.trace
 
 		self.extra_dev_deps << ['hoe-manualgen', "~> #{VERSION}"] unless
 			self.name == 'hoe-manualgen'
