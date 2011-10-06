@@ -3,7 +3,7 @@
 begin
 	require 'hoe'
 rescue LoadError
-	$stderr.puts "This Rakefile requires Hoe (gem install hoe)"
+	abort "This Rakefile requires Hoe (gem install hoe)"
 end
 
 require 'rake/clean'
@@ -33,12 +33,10 @@ hoespec = Hoe.spec 'hoe-manualgen' do
 	}
 
 	self.spec_extras[:licenses] = ["BSD"]
-	self.spec_extras[:signing_key] = '/Volumes/Keys/ged-private_gem_key.pem'
 
 	self.require_ruby_version( '>=1.8.7' )
 
 	self.hg_sign_tags = true if self.respond_to?( :hg_sign_tags= )
-
 	self.extra_rdoc_files += Dir.glob( 'data/hoe-manualgen/lib/*.rb' )
 	self.rdoc_locations << "deveiate:/usr/local/www/public/code/#{remote_rdoc_dir}"
 end
