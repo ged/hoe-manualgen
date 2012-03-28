@@ -31,7 +31,7 @@ module Hoe::ManualGen
 	include FileUtils::DryRun if Rake.application.options.dryrun
 
 	# Library version constant
-	VERSION = '0.1.1'
+	VERSION = '0.2.0'
 
 	# Version-control revision constant
 	REVISION = %q$Revision$
@@ -215,7 +215,6 @@ module Hoe::ManualGen
 		def cleanup( source )
 			require 'tidy'
 
-			Tidy.path = '/usr/lib/libtidy.dylib'
 			Tidy.open( TIDY_OPTIONS ) do |tidy|
 				tidy.options.output_xhtml = true
 
@@ -234,7 +233,7 @@ module Hoe::ManualGen
 		### Get (singleton) instances of the filters named in +filterlist+ and return them.
 		def load_filters( filterlist )
 			filterlist.flatten.collect do |key|
-				raise ArgumentError, "filter '#{key}' could not be loaded" unless
+				raise ArgumentError, "filter '#{key}' didn't load correctly" unless
 					Hoe::ManualGen::PageFilter.derivatives.key?( key )
 				Hoe::ManualGen::PageFilter.derivatives[ key ].instance
 			end
@@ -717,6 +716,7 @@ module Hoe::ManualGen
 
 	### Load the filter libraries provided in the given +libdir+
 	def load_filter_libraries( libdir )
+		trace "Loading filters from libdir: %p" % [ libdir ]
 		Pathname.glob( libdir.expand_path + '*.rb' ) do |filterlib|
 			trace "  loading filter library #{filterlib}"
 			require( filterlib )

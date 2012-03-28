@@ -29,7 +29,7 @@ class Hoe::ManualGen::APIFilter < Hoe::ManualGen::PageFilter
 		<\?
 			api			# Instruction Target
 			\s+
-			(?:"					
+			(?:"
 				(.*?)   # Optional link text [$1]
 			":)?
 			(.*?)	    # Class name [$2]
@@ -71,7 +71,7 @@ class Hoe::ManualGen::APIFilter < Hoe::ManualGen::PageFilter
 			return %{<a href="%s%s">%s</a>} % [
 				classuri,
 				make_anchor( methodname ),
-				link_text || (classname + methodname || '')
+				link_text || (classname + (methodname || ''))
 			]
 		else
 			link_text ||= classname
