@@ -73,7 +73,7 @@ h3. Authors
 
 h3. License
 
-Copyright © 2011, J. Random Hacker
+Copyright (c) 2011, J. Random Hacker
 All rights reserved.
 
 Redistribution and use in source and binary forms, with or without modification, are
@@ -174,7 +174,7 @@ h4(#default-filters). Default Filter Plugins
 
 - @api@ := Generate links to API documentation. See <?api Hoe::ManualGen::APIFilter ?> for details.
 - @editorial@ := Insert editorial markup. See <?api Hoe::ManualGen::EditorialFilter ?> for details.
-- @examples@ := Insert example code with syntax highlighting, optional XMP filtering, and captioning. See <?api Hoe::ManualGen::ExampleFilter ?> for details.
+- @examples@ := Insert example code with syntax highlighting, optional XMP filtering, and captioning. See <?api Hoe::ManualGen::ExamplesFilter ?> for details.
 - @links@ := Insert automatically-generated links to other pages by page title or filename. See <?api Hoe::ManualGen::LinksFilter ?> for details.
 
 

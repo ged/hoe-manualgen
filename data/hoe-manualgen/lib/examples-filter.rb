@@ -1,4 +1,5 @@
 #!/usr/bin/ruby
+#encoding: utf-8
 #
 # A collection of standard filters for the manual generation tasklib.
 #
@@ -145,7 +146,7 @@ class Hoe::ManualGen::ExamplesFilter < Hoe::ManualGen::PageFilter
 		caption = %{<div class="caption">} + caption.to_s + %{</div>} if caption
 
 		return %{<notextile><div class="example #{lang}-example">%s%s</div></notextile>} %
-		 	[content, caption || '']
+			[content, caption || '']
 	end
 
 

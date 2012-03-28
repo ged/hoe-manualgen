@@ -1,6 +1,7 @@
 .autotest
-History.md
-README.md
+History.rdoc
+Manifest.txt
+README.rdoc
 Rakefile
 data/hoe-manualgen/layouts/default.erb.erb
 data/hoe-manualgen/lib/api-filter.rb
@@ -8,6 +9,7 @@ data/hoe-manualgen/lib/editorial-filter.rb
 data/hoe-manualgen/lib/examples-filter.rb
 data/hoe-manualgen/lib/links-filter.rb
 data/hoe-manualgen/resources/css/manual.css.erb
+data/hoe-manualgen/resources/css/reset.css
 data/hoe-manualgen/resources/fonts/GraublauWeb.otf
 data/hoe-manualgen/resources/fonts/GraublauWebBold.otf
 data/hoe-manualgen/resources/fonts/Inconsolata.otf
