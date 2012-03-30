@@ -31,7 +31,7 @@ module Hoe::ManualGen
 	include FileUtils::DryRun if Rake.application.options.dryrun
 
 	# Library version constant
-	VERSION = '0.2.0'
+	VERSION = '0.3.0'
 
 	# Version-control revision constant
 	REVISION = %q$Revision$
@@ -68,12 +68,12 @@ module Hoe::ManualGen
 		end
 
 		### Output a message if tracing or running in verbose mode
-		def trace( message )
-			$stderr.puts( message ) if $VERBOSE || Rake.application.options.trace
+		def trace( *messages )
+			$stderr.puts( messages.join ) if $VERBOSE || Rake.application.options.trace
 		end
 
 	end
-	include Hoe::ManualGen::Logging
+
 
 	### Manual page-generation class
 	class Page

@@ -1,0 +1,6 @@
+# .gems generated gem export file. Note that any env variable settings will be missing. Append these after using a ';' field separator
+hoe-deveiate -v0.1.0
+rcodetools -v0.8.5.0
+rdoc -v3.12
+RedCloth -v4.2.9
+tidy-ext -v0.1.11
